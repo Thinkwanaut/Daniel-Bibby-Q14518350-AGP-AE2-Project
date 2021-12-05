@@ -212,6 +212,11 @@ int Player::Score()
 	return m_Score;
 }
 
+bool Player::Dead()
+{
+	return m_Health <= 0;
+}
+
 XMMATRIX Player::GetViewMatrix()
 {
 	m_position = XMVectorSet(m_x, m_y, m_z, 0.0);

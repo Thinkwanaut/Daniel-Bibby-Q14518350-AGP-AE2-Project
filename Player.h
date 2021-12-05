@@ -23,7 +23,7 @@ private:
 	float m_speed{ 0.05f }, m_JumpSpeed{ .25f }, m_Sprint{ 3 };
 	XMVECTOR m_position{}, m_lookAt{}, m_up{};
 	XMVECTOR m_GunOffset{ 0.5, 0.5, 0.5 };
-	float m_TargetDist{ 20 }, m_MaxHealth{ 10 }, m_Health{ 10 };
+	float m_TargetDist{ 20 }, m_MaxHealth{ 1 }, m_Health{ 10 };
 	float m_ThrowVelX{ 0 }, m_ThrowVelZ{ 0 };
 
 	bool m_Thrown{ false };
@@ -55,6 +55,7 @@ public:
 	int CollectItem(std::vector<GameObject*> items, Collectable itemType);
 	int Health();
 	int Score();
+	bool Dead();
 
 	XMMATRIX GetViewMatrix();
 	XMFLOAT3 GetPos();

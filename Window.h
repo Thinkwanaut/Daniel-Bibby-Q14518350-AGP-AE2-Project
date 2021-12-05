@@ -34,7 +34,9 @@ private:
 	const int D3D_REFRESH_RATE = 60;
 	RECT CLIENT_RECT;
 
-	float m_ClearColour[4] = { 0.0f, 0.5f, 0.7f, 1.0f };
+	float m_ClearColour[4] = { 0.0f, 0.5f, 1.0f, 1.0f };
+	float m_ColourCycle = (float)1.0f / 255.0f;
+	const int COLOUR_PARTS = 3;
 	bool m_Resized{ false };
 
 public:
@@ -58,6 +60,9 @@ public:
 
 	bool Resized();
 
+	void Rainbow(float adjust = 1);
+	void Clear();
+	void Clear(float r, float g, float b);
 	void ResetContext();
 	void Present();
 };

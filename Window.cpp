@@ -1,6 +1,7 @@
 #include "Window.h"
 
 Window::Window(HINSTANCE hInstance, int nCmdShow, WNDPROC WndProc, const char* name, int width, int height)
+	: m_Width{ width }, m_Height{ height }
 {
 	if (FAILED(InitialiseWindow(hInstance, nCmdShow, WndProc, name, m_Width, m_Height)))
 	{
@@ -118,6 +119,32 @@ int Window::Height()
 bool Window::Resized()
 {
 	return m_Resized;
+}
+
+void Window::Rainbow(float adjust)
+{
+	if (m_ClearColour[0] < 1.0f && m_ClearColour[1] == 0 && m_ClearColour[2] == 0) m_ClearColour[0] += m_ColourCycle * adjust;
+	else if (m_ClearColour[0] == 1.0f && m_ClearColour[1] < 1.0f && m_ClearColour[2] == 0) m_ClearColour[1] += m_ColourCycle * adjust;
+	else if (m_ClearColour[0] > 0 && m_ClearColour[1] == 1.0f && m_ClearColour[2] == 0) m_ClearColour[0] -= m_ColourCycle * adjust;
+	else if (m_ClearColour[0] == 0 && m_ClearColour[1] == 1.0f && m_ClearColour[2] < 1.0f) m_ClearColour[2] += m_ColourCycle * adjust;
+	else if (m_ClearColour[0] == 0 && m_ClearColour[1] > 0 && m_ClearColour[2] == 1.0f) m_ClearColour[1] -= m_ColourCycle * adjust;
+	else if (m_ClearColour[0] < 1.0f && m_ClearColour[1] == 0 && m_ClearColour[2] == 1.0f) m_ClearColour[0] += m_ColourCycle * adjust;
+	else if (m_ClearColour[0] == 1.0f && m_ClearColour[1] == 0 && m_ClearColour[2] > 0) m_ClearColour[2] -= m_ColourCycle * adjust;
+	else
+		for (int c = 0; c < COLOUR_PARTS; c++) m_ClearColour[c] -= m_ColourCycle * adjust;
+
+	for (int c = 0; c < COLOUR_PARTS; c++) m_ClearColour[c] = max(min(m_ClearColour[c], 1.0f), 0.0f);
+}
+
+void Window::Clear()
+{
+	mp_ImmediateContext->ClearRenderTargetView(mp_BackBufferRTView, m_ClearColour);
+}
+
+void Window::Clear(float r, float g, float b)
+{
+	float colour[4] = { r, g, b, 1 };
+	mp_ImmediateContext->ClearRenderTargetView(mp_BackBufferRTView, colour);
 }
 
 void Window::ResetContext()

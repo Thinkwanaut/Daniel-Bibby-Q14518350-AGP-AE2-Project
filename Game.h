@@ -64,13 +64,21 @@ private:
 
 	float m_BlockSize{ 1 }, m_FloorHeight{ -5 }, m_ObjectHeight{ 0 }, m_Gravity{ 0.01f }, m_SkyOffset{ 1 };
 
-	bool m_SingleFloor{ false };
+	bool m_SingleFloor{ false }, m_Paused{ false }, m_GameEnded{ false };
+
+	int m_MaxScore{ 3 };
+
+	string m_PauseText{ "PAUSED" };
 
 public:
 	Game(_In_ HINSTANCE hInstance, _In_ int nCmdShow, Window* window);
 	~Game();
 
+	void DestroyLevel();
+
 	void SetLayout();
+
+	void CreateLevel();
 
 	int Run();
 

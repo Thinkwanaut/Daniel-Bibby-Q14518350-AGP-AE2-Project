@@ -1,8 +1,5 @@
 #include "Game.h"
 
-float g_colourCycle = (float) 1.0f / 255.0f * 0.05f;
-const int COLOUR_PARTS = 3;
-
 //Rename per project
 char g_GameName[100] = "AGP AE2\0";
 
@@ -15,7 +12,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	g_pWindow = new Window(hInstance, nCmdShow, WndProc, g_GameName);
+	g_pWindow = new Window(hInstance, nCmdShow, WndProc, g_GameName, 1280, 960);
 
 	Game* newGame = new Game(hInstance, nCmdShow, g_pWindow);
 

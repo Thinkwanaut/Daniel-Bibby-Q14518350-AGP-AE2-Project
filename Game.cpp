@@ -20,25 +20,12 @@ Game::Game(_In_ HINSTANCE hInstance, _In_ int nCmdShow, Window* window)
 	mp_2DText = new Text2D("Assets/courierNew.png", mp_Window->Device(), mp_Window->Context());
 
 	SetLayout();
+	CreateLevel();
 }
 
 Game::~Game()
 {
-	for (GameObject* obstacle : mp_Obstacles) delete obstacle;
-	mp_Obstacles.clear();
-
-	for (GameObject* spikes : mp_Spikes) delete spikes;
-	mp_Spikes.clear();
-
-	for (Enemy* enemy : mp_Enemies) delete enemy;
-	mp_Enemies.clear();
-
-	for (GameObject* healthPack : mp_HealthPacks) delete healthPack;
-	mp_HealthPacks.clear();
-
-	for (Bullet* bullet : mp_Bullets) delete bullet;
-	mp_Bullets.clear();
-
+	DestroyLevel();
 	if (mp_Skybox)
 	{
 		delete mp_Skybox;
@@ -59,11 +46,6 @@ Game::~Game()
 		delete mp_ALight;
 		mp_ALight = nullptr;
 	}
-	if (mp_Player)
-	{
-		delete mp_Player;
-		mp_Player= nullptr;
-	}
 	if (mp_2DText)
 	{
 		delete mp_2DText;
@@ -76,6 +58,37 @@ Game::~Game()
 	}
 }
 
+void Game::DestroyLevel()
+{
+	for (GameObject* obstacle : mp_Obstacles) delete obstacle;
+	mp_Obstacles.clear();
+
+	for (GameObject* movable : mp_Movables) delete movable;
+	mp_Movables.clear();
+
+	for (GameObject* spikes : mp_Spikes) delete spikes;
+	mp_Spikes.clear();
+
+	for (Enemy* enemy : mp_Enemies) delete enemy;
+	mp_Enemies.clear();
+
+	for (GameObject* key : mp_Keys) delete key;
+	mp_Keys.clear();
+
+	for (GameObject* healthPack : mp_HealthPacks) delete healthPack;
+	mp_HealthPacks.clear();
+
+	for (Bullet* bullet : mp_Bullets) delete bullet;
+	mp_Bullets.clear();
+
+	if (mp_Player)
+	{
+		delete mp_Player;
+		mp_Player = nullptr;
+	}
+
+	mp_Pushers.clear();
+}
 void Game::SetLayout()
 {
 	std::ifstream levelFile(LEVEL_FILE);
@@ -89,6 +102,11 @@ void Game::SetLayout()
 		}
 	}
 	levelFile.close();
+}
+
+void Game::CreateLevel()
+{
+	DestroyLevel();
 
 	if (m_SingleFloor)
 	{
@@ -104,6 +122,7 @@ void Game::SetLayout()
 		int z = m_BlockSize * row;
 		for (int column = 0; column < m_Layout[0].length(); column++)
 		{
+			mp_Window->ResetContext();
 			mp_Input->ReadInputStates();
 			int x = m_BlockSize * column; //Get game coordinates
 			int index = 0;
@@ -180,10 +199,12 @@ void Game::SetLayout()
 				mp_Obstacles[index]->SetFall(false);
 			}
 
+			mp_Window->Clear( 0.0f, 0.0f, 0.0f );
+
 			int total = m_Layout.size() * m_Layout[0].length();
 			int completed = row * m_Layout[0].length() + column;
 			int percent = (int)((float)completed / (float)total * 100);
-			mp_2DText->AddText(std::to_string(percent) + "%", 0, 0, 0.2, { 0, 1, 1, 0 }, true);
+			mp_2DText->AddText(std::to_string(percent) + "%", 0, 0, 0.2, { 0, 1, 1, 1 }, true);
 			mp_2DText->RenderText();
 			mp_Window->Present();
 
@@ -205,6 +226,8 @@ void Game::SetLayout()
 
 	mp_Skybox = new Skybox(mp_Window->Device(), mp_Window->Context(), mp_Assets, SKY_FILE, (char*)"skyShaders.hlsl");
 	mp_Skybox->SetScale(3, 3, 3);
+
+	m_GameEnded = false;
 
 	mp_Timer->Tick();
 }
@@ -242,6 +265,19 @@ void Game::MovePlayer(float adjust)
 	if (keyHit >= 0) mp_Keys.erase(std::begin(mp_Keys) + keyHit);
 
 	mp_Player->SpikeCheck(mp_Spikes);
+
+	if (mp_Player->Dead())
+	{
+		m_GameEnded = true;
+		m_PauseText = "DEFEAT";
+	}
+
+	else if (mp_Player->Score() >= m_MaxScore)
+	{
+		m_GameEnded = true;
+		m_PauseText = "VICTORY";
+	}
+
 }
 
 void Game::MoveBullets(float fpsAdjustment)
@@ -284,21 +320,40 @@ void Game::Update()
 	mp_Input->ReadInputStates();
 	mp_Window->ResetContext();
 
-	MovePlayer(adjust);
-	MoveBullets(adjust);
-	for (GameObject* m : mp_Movables)
+	if (mp_Input->KeyPressed(KEYS::P) && !m_GameEnded)
 	{
-		m->Fall(mp_Obstacles, m_Gravity, adjust);
-		m->GetPushed(mp_Pushers, mp_Obstacles);
+		m_Paused = !m_Paused;
+		m_PauseText = "PAUSED";
 	}
-	for (Enemy* e : mp_Enemies) e->Move(mp_Player, mp_Obstacles, adjust);
-	for (GameObject* h : mp_HealthPacks) h->Fall(mp_Obstacles, m_Gravity, adjust);
-	for (GameObject* k : mp_Keys) k->Fall(mp_Obstacles, m_Gravity, adjust);
-	for (GameObject* s : mp_Spikes) s->Fall(mp_Obstacles, m_Gravity, adjust);
-	XMFLOAT3 camPos = mp_Player->GetPos();
-	mp_Skybox->SetPos(camPos.x, camPos.y + m_SkyOffset, camPos.z);
+
+	if (!m_Paused && !m_GameEnded)
+	{
+		MovePlayer(adjust);
+		MoveBullets(adjust);
+		for (GameObject* m : mp_Movables)
+		{
+			m->Fall(mp_Obstacles, m_Gravity, adjust);
+			m->GetPushed(mp_Pushers, mp_Obstacles);
+		}
+		for (Enemy* e : mp_Enemies) e->Move(mp_Player, mp_Obstacles, adjust);
+		for (GameObject* h : mp_HealthPacks) h->Fall(mp_Obstacles, m_Gravity, adjust);
+		for (GameObject* k : mp_Keys) k->Fall(mp_Obstacles, m_Gravity, adjust);
+		for (GameObject* s : mp_Spikes) s->Fall(mp_Obstacles, m_Gravity, adjust);
+		XMFLOAT3 camPos = mp_Player->GetPos();
+		mp_Skybox->SetPos(camPos.x, camPos.y + m_SkyOffset, camPos.z);
+		Draw();
+	}
+	else
+	{
+		mp_Window->Rainbow(adjust);
+		mp_Window->Clear();
+		mp_2DText->AddText(m_PauseText, 0, 0, .25, { 0, 0, 0, 1 }, true);
+		mp_2DText->RenderText();
+		mp_Window->Present();
+
+		if (mp_Input->KeyPressed(KEYS::ENTER) && m_GameEnded) CreateLevel();
+	}
 	
-	Draw();
 }
 
 void Game::Draw()
