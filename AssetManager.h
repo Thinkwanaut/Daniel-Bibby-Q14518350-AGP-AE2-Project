@@ -14,13 +14,15 @@ using namespace DirectX;
 struct DRAW_BUFFER
 {
 	XMMATRIX WorldViewProjection;
-	XMVECTOR base_colour;
+	XMVECTOR tint_colour;
+	XMVECTOR added_colour;
 	XMVECTOR directional_light_vector;
 	XMVECTOR directional_light_colour;
 	XMVECTOR ambient_light_colour;
 	XMVECTOR point_light_position;
 	XMVECTOR point_light_colour;
 };
+
 class AssetManager
 {
 private:
@@ -40,7 +42,7 @@ public:
 	~AssetManager();
 
 	void LoadTexture(char* filename);
-	HRESULT LoadShaders(char* filename);
+	HRESULT LoadShaders(char* filename, bool skybox = false);
 	void LoadModel(char* filename);
 
 	ID3D11ShaderResourceView* GetTexture(char* filename);

@@ -129,8 +129,15 @@ bool GameObject::CheckCollisionZ(GameObject* other)
 
 bool GameObject::CheckCollisionSphere(GameObject* other)
 {
-	float d_sq = powf(GetCollisionPos().x - other->GetCollisionPos().x, 2) + powf(GetCollisionPos().y - other->GetCollisionPos().y, 2) + powf(GetCollisionPos().z - other->GetCollisionPos().z, 2);
+	float d_sq = powf(GetX() - other->GetX(), 2) + powf(GetY() - other->GetY(), 2) + powf(GetZ() - other->GetZ(), 2);
 	return (d_sq <= powf(GetDimensions().x + other->GetDimensions().x, 2));
+}
+
+bool GameObject::PassedThrough(GameObject* target)
+{
+	return (m_PrevX < target->GetPrevX() && target->GetX() < m_x || m_x < target->GetX() && target->GetPrevX() < m_PrevX)
+		&& (m_PrevY < target->GetPrevY() && target->GetY() < m_y || m_y < target->GetY() && target->GetPrevY() < m_PrevY)
+		&& (m_PrevZ < target->GetPrevZ() && target->GetZ() < m_z || m_z < target->GetZ() && target->GetPrevZ() < m_PrevZ);
 }
 
 void GameObject::SetCollisionPos()
@@ -225,6 +232,21 @@ float GameObject::GetZ()
 	return m_z;
 }
 
+float GameObject::GetPrevX()
+{
+	return m_PrevX;
+}
+
+float GameObject::GetPrevY()
+{
+	return m_PrevY;
+}
+
+float GameObject::GetPrevZ()
+{
+	return m_PrevZ;
+}
+
 void GameObject::SetCollisionType(ColliderShape shape)
 {
 	m_collisionType = shape;
@@ -260,8 +282,19 @@ void GameObject::MoveForward(float step, float adjust)
 
 void GameObject::MoveForward(float step, std::vector<GameObject*> others, float adjust)
 {
-	MoveForward(step, adjust);
-	if (CheckCollision(others)) MoveForward(-step, adjust);
+	float tempx{ m_x }, tempy{ m_y }, tempz{ m_z };
+
+	m_x += sin(XMConvertToRadians(m_yRot)) * step * cos(XMConvertToRadians(m_xRot)) * adjust;
+	for (GameObject* o : others)
+		if (CheckCollision(o)) m_x = tempx;
+
+	m_y += -sin(XMConvertToRadians(m_xRot)) * step * adjust;
+	for (GameObject* o : others)
+		if (CheckCollision(o)) m_y = tempy;
+
+	m_z += cos(XMConvertToRadians(m_yRot)) * step * cos(XMConvertToRadians(m_xRot)) * adjust;
+	for (GameObject* o : others)
+		if (CheckCollision(o)) m_z = tempz;
 }
 
 void GameObject::Fall(std::vector<GameObject*> obstacles, float grav, float adjust)
@@ -339,8 +372,22 @@ void GameObject::MoveToTop(GameObject* other, float offset)
 	m_FallVel = m_Grounded ? 0 : max(m_FallVel, 0);
 }
 
-void GameObject::Draw(XMMATRIX view, XMMATRIX projection, Light* ambient, DirectionalLight* directional)
+void GameObject::SetPos(float x, float y, float z)
 {
-	Drawable::Draw(view, projection, ambient, directional);
+	Drawable::SetPos(x, y, z);
+	m_PrevX = x; m_PrevY = y; m_PrevZ = z;
+}
+
+void GameObject::SetPos(XMFLOAT3 pos)
+{
+	Drawable::SetPos(pos);
+	m_PrevX = pos.x; m_PrevY = pos.y; m_PrevZ = pos.z;
+}
+
+void GameObject::Draw(XMMATRIX view, XMMATRIX projection, Light* ambient, DirectionalLight* directional, PointLight* point)
+{
+	Drawable::Draw(view, projection, ambient, directional, point);
 	mp_Object->Draw();
+
+	m_PrevX = m_x; m_PrevY = m_y; m_PrevZ = m_z;
 }

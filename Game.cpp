@@ -11,13 +11,14 @@ Game::Game(_In_ HINSTANCE hInstance, _In_ int nCmdShow, Window* window)
 	mp_Assets->LoadTexture(BOX_FILE);
 	mp_Assets->LoadTexture(HEALTH_FILE);
 	mp_Assets->LoadTexture(ORB_FILE);
+	mp_Assets->LoadShaders(SKY_SHADER_FILE, true);
 
 
 	HRESULT hr;
 	mp_Input = new Input(mp_Window->HInst(), mp_Window->HWnd(), &hr);
 	if (FAILED(hr)) DXTRACE_MSG("Failed to initialise input");
 
-	mp_2DText = new Text2D("Assets/courierNew.png", mp_Window->Device(), mp_Window->Context());
+	mp_2DText = new Text2D("Assets/myFont.png", mp_Window->Device(), mp_Window->Context());
 
 	SetLayout();
 	CreateLevel();
@@ -69,6 +70,9 @@ void Game::DestroyLevel()
 	for (GameObject* spikes : mp_Spikes) delete spikes;
 	mp_Spikes.clear();
 
+	for (GameObject* spawn : mp_Spawns) delete spawn;
+	mp_Spawns.clear();
+
 	for (Enemy* enemy : mp_Enemies) delete enemy;
 	mp_Enemies.clear();
 
@@ -80,6 +84,8 @@ void Game::DestroyLevel()
 
 	for (Bullet* bullet : mp_Bullets) delete bullet;
 	mp_Bullets.clear();
+
+	mp_Blockers.clear();
 
 	if (mp_Player)
 	{
@@ -110,7 +116,7 @@ void Game::CreateLevel()
 
 	if (m_SingleFloor)
 	{
-		mp_Obstacles.push_back(new GameObject(mp_Window->Device(), mp_Window->Context(), mp_Assets, CUBE_FILE, BOX_FILE, SHADER_FILE));
+		mp_Obstacles.push_back(new GameObject(mp_Window->Device(), mp_Window->Context(), mp_Assets, CUBE_FILE, FLOOR_FILE, SHADER_FILE));
 		mp_Obstacles[0]->SetPos(m_Layout[0].length() * m_BlockSize / 2.0f, m_FloorHeight, m_Layout.size() * m_BlockSize / 2.0f);
 		mp_Obstacles[0]->SetScale(m_Layout[0].length() * m_BlockSize / 2.0f, m_BlockSize, m_BlockSize * m_Layout.size() / 2.0f);
 		mp_Obstacles[0]->SetCollisionType(ColliderShape::Box);
@@ -136,15 +142,15 @@ void Game::CreateLevel()
 				{
 				case (int)ObjectTypes::MOVABLE:
 					index = mp_Movables.size();
-					mp_Movables.push_back(new GameObject(mp_Window->Device(), mp_Window->Context(), mp_Assets, CUBE_FILE, BOX_FILE, SHADER_FILE));
+					mp_Movables.push_back(new GameObject(mp_Window->Device(), mp_Window->Context(), mp_Assets, CUBE_FILE, STONE_FILE, SHADER_FILE));
 					mp_Movables[index]->SetPos(x, m_ObjectHeight, z);
-					mp_Movables[index]->SetScale(m_BlockSize / 2.1f, m_BlockSize / 2.0f, m_BlockSize / 2.1f);
+					mp_Movables[index]->SetScale(m_BlockSize / 2.5f, m_BlockSize / 2.0f, m_BlockSize / 2.5f);
 					mp_Movables[index]->SetCollisionType(ColliderShape::Box);
 					break;
 
 				case (int)ObjectTypes::SPIKES:
 					index = mp_Spikes.size();
-					mp_Spikes.push_back(new GameObject(mp_Window->Device(), mp_Window->Context(), mp_Assets, CUBE_FILE, FENCE_FILE, SHADER_FILE));
+					mp_Spikes.push_back(new GameObject(mp_Window->Device(), mp_Window->Context(), mp_Assets, CUBE_FILE, SPIKE_FILE, SHADER_FILE));
 					mp_Spikes[index]->SetPos(x, (m_SingleFloor) ? m_ObjectHeight : m_FloorHeight, z);
 					mp_Spikes[index]->SetScale(m_BlockSize / 2.0f, m_BlockSize / 4.0f, m_BlockSize / 2.0f);
 					mp_Spikes[index]->SetCollisionType(ColliderShape::Box);
@@ -155,22 +161,22 @@ void Game::CreateLevel()
 					index = mp_HealthPacks.size();
 					mp_HealthPacks.push_back(new GameObject(mp_Window->Device(), mp_Window->Context(), mp_Assets, CUBE_FILE, HEALTH_FILE, SHADER_FILE));
 					mp_HealthPacks[index]->SetPos(x, m_ObjectHeight, z);
-					mp_HealthPacks[index]->SetScale(.5f, .5f, .5f);
+					mp_HealthPacks[index]->SetScale(m_BlockSize / 4.0f, m_BlockSize / 4.0f, m_BlockSize / 4.0f);
 					mp_HealthPacks[index]->SetCollisionType(ColliderShape::Box);
 					break;
 
 				case (int)ObjectTypes::ENEMY:
-					index = mp_Enemies.size();
-					mp_Enemies.push_back(new Enemy(mp_Window->Device(), mp_Window->Context(), mp_Assets, SPHERE_FILE, ENEMY_FILE, SHADER_FILE));
-					mp_Enemies[index]->SetPos(x, m_ObjectHeight, z);
-					mp_Enemies[index]->SetScale(0.25f, 0.25f, 0.25f);
-					mp_Enemies[index]->SetKey(SPHERE_FILE, ORB_FILE);
+					index = mp_Spawns.size();
+					mp_Spawns.push_back(new GameObject(mp_Window->Device(), mp_Window->Context(), mp_Assets, SPHERE_FILE, SPIKE_FILE, SHADER_FILE));
+					mp_Spawns[index]->SetColour({ 1, 0, 0, 1 });
+					mp_Spawns[index]->SetScale(m_BlockSize / 2.0f, m_BlockSize / 2.0f, m_BlockSize / 2.0f);
+					mp_Spawns[index]->SetPos(x, m_ObjectHeight + abs(m_FloorHeight / 2.0f), z);
 					break;
 
 				case (int)ObjectTypes::PLAYER:
 					mp_Player = new Player(mp_Window->Device(), mp_Window->Context(), mp_Assets, CUBE_FILE, BOX_FILE, SHADER_FILE);
 					mp_Player->SetPos(x, m_ObjectHeight, z);
-					mp_Player->SetScale(0.1f, 1.5f, 0.1f);
+					mp_Player->SetScale(m_BlockSize * 0.1f, m_BlockSize * 1.25f, m_BlockSize * 0.1f);
 					mp_Player->SetCollisionType(ColliderShape::Box);
 					mp_Player->SetBullet(SPHERE_FILE, ORB_FILE);
 					break;
@@ -182,7 +188,7 @@ void Game::CreateLevel()
 			if (!m_SingleFloor)
 			{
 				index = mp_Obstacles.size();
-				mp_Obstacles.push_back(new GameObject(mp_Window->Device(), mp_Window->Context(), mp_Assets, CUBE_FILE, BOX_FILE, SHADER_FILE));
+				mp_Obstacles.push_back(new GameObject(mp_Window->Device(), mp_Window->Context(), mp_Assets, CUBE_FILE, FLOOR_FILE, SHADER_FILE));
 				mp_Obstacles[index]->SetPos(x, floorHeight, z);
 				mp_Obstacles[index]->SetScale(m_BlockSize / 2.0f, m_BlockSize / 2.0f, m_BlockSize / 2.0f);
 				mp_Obstacles[index]->SetCollisionType(ColliderShape::Box);
@@ -224,12 +230,16 @@ void Game::CreateLevel()
 	mp_Pushers.insert(mp_Pushers.end(), mp_Movables.begin(), mp_Movables.end());
 	mp_Pushers.push_back(mp_Player);
 
+	mp_Blockers.insert(mp_Blockers.end(), mp_Obstacles.begin(), mp_Obstacles.end());
+	mp_Blockers.insert(mp_Blockers.end(), mp_Movables.begin(), mp_Movables.end());
+
 	mp_Skybox = new Skybox(mp_Window->Device(), mp_Window->Context(), mp_Assets, SKY_FILE, (char*)"skyShaders.hlsl");
 	mp_Skybox->SetScale(3, 3, 3);
 
 	m_GameEnded = false;
 
 	mp_Timer->Tick();
+	SpawnEnemies();
 }
 
 int Game::Run()
@@ -253,7 +263,7 @@ int Game::Run()
 void Game::MovePlayer(float adjust)
 {
 	mp_Player->Move(mp_Input, mp_Obstacles, m_Gravity, adjust);
-	if (mp_Input->MouseButtonPressed(MOUSE::LCLICK)) mp_Bullets.push_back(mp_Player->Shoot());
+	if (mp_Input->MouseButtonHeld(MOUSE::LCLICK) && mp_Player->ShotReady()) mp_Bullets.push_back(mp_Player->Shoot());
 
 	int enemyHit = mp_Player->EnemyCheck(mp_Enemies);
 	if (enemyHit >= 0) mp_Enemies.erase(std::begin(mp_Enemies) + enemyHit);
@@ -265,6 +275,8 @@ void Game::MovePlayer(float adjust)
 	if (keyHit >= 0) mp_Keys.erase(std::begin(mp_Keys) + keyHit);
 
 	mp_Player->SpikeCheck(mp_Spikes);
+
+	//mp_PLight->SetPosition({ mp_Player->GetX(), mp_Player->GetY(), mp_Player->GetZ() });
 
 	if (mp_Player->Dead())
 	{
@@ -285,7 +297,7 @@ void Game::MoveBullets(float fpsAdjustment)
 	int bulletCounter = 0;
 	while (bulletCounter != mp_Bullets.size())
 	{
-		if (mp_Bullets[bulletCounter]->Move(mp_Obstacles, fpsAdjustment)) mp_Bullets.erase(std::begin(mp_Bullets) + bulletCounter);
+		if (mp_Bullets[bulletCounter]->Move(mp_Blockers, fpsAdjustment)) mp_Bullets.erase(std::begin(mp_Bullets) + bulletCounter);
 		else
 		{
 			int targetHit = mp_Bullets[bulletCounter]->TargetCheck(mp_Enemies);
@@ -313,21 +325,36 @@ XMMATRIX Game::XYZRotation(float x, float y, float z)
 	return xMatrix * yMatrix * zMatrix;
 }
 
+void Game::SpawnEnemies()
+{
+	for (GameObject* spawn : mp_Spawns)
+	{
+		int index = mp_Enemies.size();
+		mp_Enemies.push_back(new Enemy(mp_Window->Device(), mp_Window->Context(), mp_Assets, CUBE_FILE, ENEMY_FILE, SHADER_FILE));
+		mp_Enemies[index]->SetPos(spawn->GetPos());
+		mp_Enemies[index]->SetKey(SPHERE_FILE, ORB_FILE);
+	}
+	mp_Timer->StartTimer("Spawn");
+}
+
 void Game::Update()
 {
 	if (mp_Window->Resized()) mp_Timer->Tick();
-	float adjust = mp_Timer->Tick();
+	float adjust = mp_Timer->Tick() * m_BlockSize;
 	mp_Input->ReadInputStates();
 	mp_Window->ResetContext();
 
 	if (mp_Input->KeyPressed(KEYS::P) && !m_GameEnded)
 	{
 		m_Paused = !m_Paused;
-		m_PauseText = "PAUSED";
+		m_PauseText = "PAUSED-(P)";
 	}
 
 	if (!m_Paused && !m_GameEnded)
 	{
+		mp_DLight->Rotate({ 0, adjust / m_BlockSize, 0 });
+
+		if (mp_Timer->GetTimer("Spawn") >= m_EnemyInterval)	SpawnEnemies();
 		MovePlayer(adjust);
 		MoveBullets(adjust);
 		for (GameObject* m : mp_Movables)
@@ -335,7 +362,7 @@ void Game::Update()
 			m->Fall(mp_Obstacles, m_Gravity, adjust);
 			m->GetPushed(mp_Pushers, mp_Obstacles);
 		}
-		for (Enemy* e : mp_Enemies) e->Move(mp_Player, mp_Obstacles, adjust);
+		for (Enemy* e : mp_Enemies) e->Move(mp_Player, mp_Blockers, adjust);
 		for (GameObject* h : mp_HealthPacks) h->Fall(mp_Obstacles, m_Gravity, adjust);
 		for (GameObject* k : mp_Keys) k->Fall(mp_Obstacles, m_Gravity, adjust);
 		for (GameObject* s : mp_Spikes) s->Fall(mp_Obstacles, m_Gravity, adjust);
@@ -345,9 +372,10 @@ void Game::Update()
 	}
 	else
 	{
-		mp_Window->Rainbow(adjust);
+		mp_Window->Rainbow(adjust / m_BlockSize);
 		mp_Window->Clear();
-		mp_2DText->AddText(m_PauseText, 0, 0, .25, { 0, 0, 0, 1 }, true);
+		mp_2DText->AddText(m_PauseText, 0, 0, .15, { 0, 0, 0, 1 }, true);
+		if (m_GameEnded) mp_2DText->AddText("PRESS-ENTER-TO-RESTART", 0, -.25, .05, { 0, 0, 0, 1 }, true);
 		mp_2DText->RenderText();
 		mp_Window->Present();
 
@@ -358,13 +386,14 @@ void Game::Update()
 
 void Game::Draw()
 {
-	XMMATRIX projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(90.0), mp_Window->Width() / mp_Window->Height(), 1.0, 100.0);
+	XMMATRIX projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(90.0), mp_Window->Width() / mp_Window->Height(), 1.0, 1000.0);
 
 	mp_Skybox->Draw(mp_Player->GetViewMatrix(), projection);
 
 	mp_DLight->Rotate({ 1, 0, 0 });
 
 	for (GameObject* o : mp_Obstacles) o->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
+	for (GameObject* s : mp_Spawns) s->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
 	for (Bullet* b : mp_Bullets) b->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
 	for (Enemy* e : mp_Enemies) e->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
 	for (GameObject* h : mp_HealthPacks) h->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
@@ -372,9 +401,9 @@ void Game::Draw()
 	for (GameObject* m : mp_Movables) m->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
 	for (GameObject* s : mp_Spikes) s->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
 
-	mp_2DText->AddText("+", 0.0f, 0.0f, 0.25f, { 0.0f, 1.0f, 0.0f, 0.7f }, true); //Will use text for basic UI images
-	mp_2DText->AddText("HP-" + std::to_string(mp_Player->Health()), -0.9f, 0.9f, 0.1f, { 1.0f, 0.0f, 0.0f, 1.0f });
-	mp_2DText->AddText("Score-" + std::to_string(mp_Player->Score()), -0.9f, 0.8f, 0.1f, { 1.0f, 0.0f, 0.0f, 1.0f });
+	mp_2DText->AddText("(+)", 0.0f, 0.0f, 0.1f, { 0.0f, 1.0f, 0.0f, 0.7f }, true); //Will use text for basic UI images
+	mp_2DText->AddText("HP-" + std::to_string(mp_Player->Health()), -0.9f, 0.9f, 0.05f, { 1.0f, 1.0f, 1.0f, 1.0f });
+	mp_2DText->AddText("Score-" + std::to_string(mp_Player->Score()) + "/" + std::to_string(m_MaxScore), -0.9f, 0.8f, 0.05f, {1.0f, 1.0f, 1.0f, 1.0f});
 	mp_2DText->RenderText();
 
 	mp_Window->Present();

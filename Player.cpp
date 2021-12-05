@@ -4,6 +4,17 @@ Player::Player(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager*
 	: GameObject{ device, context, assets, model, texture, shader }
 {
 	m_Health = m_MaxHealth;
+	mp_Timer = new Timer();
+	mp_Timer->StartTimer("Shoot");
+}
+
+Player::~Player()
+{
+	if (mp_Timer)
+	{
+		delete mp_Timer;
+		mp_Timer = nullptr;
+	}
 }
 
 void Player::Move(Input* input, std::vector<GameObject*> obstacles, float grav, float adjust)
@@ -136,15 +147,30 @@ void Player::SetBullet(char* model, char* texture)
 	m_BulletTexture = texture;
 }
 
+bool Player::ShotReady()
+{
+	return mp_Timer->GetTimer("Shoot") > m_ShotInterval;
+}
+
+float Player::GetRandTarget()
+{
+	return ((float)(rand() % (int)((1 - m_Accuracy) * 100 + 1)) / 100.0f) - (1 - m_Accuracy) / 2.0f;
+}
+
 Bullet* Player::Shoot()
 {
 	XMVECTOR gunPos = XMVector3Normalize(XMVector3Cross({ m_LookX, m_dy, m_LookZ }, -m_up));
 	gunPos += XMVector3Normalize(XMVector3Cross(gunPos, { m_LookX, m_dy, m_LookZ, 0}));
 	gunPos *= m_GunOffset;
 	gunPos += {m_x, m_y, m_z};
-	XMVECTOR gunTarget = { XMVectorGetX(gunPos) + m_LookX * m_TargetDist, XMVectorGetY(gunPos) + m_dy * m_TargetDist, XMVectorGetZ(gunPos) + m_LookZ * m_TargetDist };
+	float tx = XMVectorGetX(gunPos) + m_LookX * m_TargetDist + m_TargetDist * GetRandTarget();
+	float ty = XMVectorGetY(gunPos) + m_dy * m_TargetDist + m_TargetDist * GetRandTarget();
+	float tz = XMVectorGetZ(gunPos) + m_LookZ * m_TargetDist + m_TargetDist * GetRandTarget();
+	XMVECTOR gunTarget = { tx, ty, tz };
 	Bullet* bullet = new Bullet(mp_D3DDevice, mp_ImmediateContext, mp_Assets, m_BulletModel, m_BulletTexture, (char*)"shaders.hlsl");
 	bullet->Shoot(gunPos, gunTarget);
+
+	mp_Timer->StartTimer("Shoot");
 	return bullet;
 }
 
@@ -157,8 +183,8 @@ void Player::SpikeCheck(std::vector<GameObject*> spikes)
 			m_Health = max(m_Health - 1, 0);
 			m_Thrown = true;
 			XMFLOAT2 throwDir = Normalise2D({ m_x - spike->GetX(), m_z - spike->GetZ() });
-			m_ThrowVelX = throwDir.x * m_JumpSpeed;
-			m_ThrowVelZ = throwDir.y * m_JumpSpeed;
+			m_ThrowVelX = throwDir.x * m_JumpSpeed / 2.0f;
+			m_ThrowVelZ = throwDir.y * m_JumpSpeed / 2.0f;
 			MoveToTop(spike);
 			Jump(true);
 		}

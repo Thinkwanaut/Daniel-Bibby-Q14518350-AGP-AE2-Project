@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d11.h>
 #include <math.h>
+#include <random>
 
 #define _XM_NO_INSTRINSICS_
 #define XM_NO_ALIGNMENT
@@ -9,6 +10,7 @@
 #include "GameObject.h"
 #include "Bullet.h"
 #include "Input.h"
+#include "Timer.h"
 
 using namespace DirectX;
 enum class Collectable
@@ -20,10 +22,10 @@ class Player : public GameObject
 {
 private:
 	float m_dx{ 0 }, m_dy{ 0 }, m_dz{ 0 }, m_CamRotX{ 0 }, m_CamRotY{ 0 }, m_AngleClamp{ 89.9f }, m_LookX{ 0 }, m_LookZ{ 0 };
-	float m_speed{ 0.05f }, m_JumpSpeed{ .25f }, m_Sprint{ 3 };
+	float m_speed{ 0.05f }, m_JumpSpeed{ .25f }, m_Sprint{ 2.0 }, m_ShotInterval{ 0.01f }, m_Accuracy{ 0.85f };
 	XMVECTOR m_position{}, m_lookAt{}, m_up{};
-	XMVECTOR m_GunOffset{ 0.5, 0.5, 0.5 };
-	float m_TargetDist{ 20 }, m_MaxHealth{ 1 }, m_Health{ 10 };
+	XMVECTOR m_GunOffset{ 2.5f, 5, 2.5f };
+	float m_TargetDist{ 50 }, m_MaxHealth{ 10 }, m_Health{ 10 };
 	float m_ThrowVelX{ 0 }, m_ThrowVelZ{ 0 };
 
 	bool m_Thrown{ false };
@@ -32,9 +34,12 @@ private:
 
 	char* m_BulletModel = nullptr;
 	char* m_BulletTexture = nullptr;
+
+	Timer* mp_Timer;
 	
 public:
 	Player(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager* assets, char* model, char* texture, char* shader);
+	~Player();
 	void Move(Input* input, std::vector<GameObject*> obstacles, float grav, float adjust = 1);
 	void Forward(float movement, std::vector<GameObject*> obstacles);
 	void Strafe(float movement, std::vector<GameObject*> obstacles);
@@ -47,6 +52,8 @@ public:
 	void SetCameraLook();
 	void SetBullet(char* model, char* texture);
 
+	bool ShotReady();
+	float GetRandTarget();
 	Bullet* Shoot();
 
 	void SpikeCheck(std::vector<GameObject*> spikes);

@@ -80,7 +80,9 @@ void ObjFileModel::parsefile()
 	xy tempxy;
 
 	bool success;
-	int line=0;
+	int line = 0;
+
+	float scale = 0;
 
 	do
 	{	
@@ -103,7 +105,7 @@ void ObjFileModel::parsefile()
 			if(!success) {char s[100] = "ERROR: Badly formatted vertex, line : "; _itoa(line, &s[strlen(s)], 10); strcat(s, " : "); strcat(s, filename.c_str());  DXTRACE_MSG(s); }
 
 			position_list.push_back(tempxyz); // add a new element to the list
-
+			scale = max(scale, tempxyz.x, tempxyz.y, tempxyz.z);
 		}
 		else if(strncmp(&fbuffer[tokenstart], "vt", 2)==0) // TEXTURE COORDINATES
 		{
@@ -177,6 +179,14 @@ void ObjFileModel::parsefile()
 			if(!success) {char s[100] = "ERROR: Badly formatted face, line : "; _itoa(line, &s[strlen(s)], 10); strcat(s, " : "); strcat(s, filename.c_str());  DXTRACE_MSG(s); }
 		}
 	} while(getnextline() == true);
+
+	// Keep all models of uniform size
+	for (int p = 0; p < position_list.size(); p++)
+	{
+		position_list[p].x /= scale;
+		position_list[p].y /= scale;
+		position_list[p].z /= scale;
+	}
 }
 
 

@@ -12,7 +12,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	g_pWindow = new Window(hInstance, nCmdShow, WndProc, g_GameName, 1280, 960);
+	g_pWindow = new Window(hInstance, nCmdShow, WndProc, g_GameName, 1280, 720);
 
 	Game* newGame = new Game(hInstance, nCmdShow, g_pWindow);
 

@@ -23,6 +23,7 @@ protected:
 	XMFLOAT3 m_collisionPos{ 0, 0, 0 };
 	XMFLOAT3 m_dimensions{ 0, 0, 0 };
 
+	float m_PrevX{ 0 }, m_PrevY{ 0 }, m_PrevZ{ 0 };
 	ColliderShape m_collisionType = ColliderShape::None;
 
 	bool SphereCollision(std::vector<GameObject*> others);
@@ -52,9 +53,14 @@ public:
 
 	bool CheckCollisionSphere(GameObject* other);
 
+	bool PassedThrough(GameObject* target);
+
 	float GetX();
 	float GetY();
 	float GetZ();
+	float GetPrevX();
+	float GetPrevY();
+	float GetPrevZ();
 	
 	void SetCollisionType(ColliderShape shape);
 	void LookAt_XZ(float x, float z);
@@ -66,7 +72,9 @@ public:
 	void SetFall(bool fall);
 	void GetPushed(std::vector<GameObject*> pushers, std::vector<GameObject*> obstacles);
 	void MoveToTop(GameObject* other, float offset = 0);
+	void SetPos(float x, float y, float z);
+	void SetPos(XMFLOAT3 pos);
 
-	void Draw(XMMATRIX view, XMMATRIX projection, Light* ambient, DirectionalLight* directional);
+	void Draw(XMMATRIX view, XMMATRIX projection, Light* ambient, DirectionalLight* directional = nullptr, PointLight* point = nullptr);
 };
 

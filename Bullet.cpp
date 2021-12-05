@@ -4,7 +4,7 @@ Bullet::Bullet(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager*
 	: GameObject{ device, context, assets, model, texture, shader }
 {
 	SetScale(m_Size, m_Size, m_Size);
-	SetCollisionType(ColliderShape::Sphere);
+	SetCollisionType(ColliderShape::Box);
 	SetColour({ 0, 1, 1, 0 });
 }
 
@@ -14,7 +14,6 @@ void Bullet::Shoot(XMVECTOR start, XMVECTOR target)
 	SetPos(XMVectorGetX(start), XMVectorGetY(start), XMVectorGetZ(start));
 	XMVECTOR targetVec = target - start;
 	m_Direction = XMVector3Normalize(target - start);
-	m_MaxDSq = powf(XMVectorGetX(targetVec), 2) + powf(XMVectorGetY(targetVec), 2) + powf(XMVectorGetZ(targetVec), 2);
 }
 
 bool Bullet::Move(std::vector<GameObject*> Obstacles, float lagAdjust)
@@ -32,10 +31,10 @@ bool Bullet::Move(std::vector<GameObject*> Obstacles, float lagAdjust)
 	return d_sq > m_MaxDSq;
 }
 
-int Bullet::TargetCheck(std::vector<Enemy*> Enemys)
+int Bullet::TargetCheck(std::vector<Enemy*> Enemies)
 {
-	for (int e = 0; e < Enemys.size(); e++)
-		if (CheckCollision(Enemys[e])) return e;
+	for (int e = 0; e < Enemies.size(); e++)
+		if (CheckCollision(Enemies[e]) || PassedThrough(Enemies[e])) return e;
 
 	return -1;
 }

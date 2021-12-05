@@ -7,6 +7,7 @@
 #include <DirectXMath.h>
 #include "DirectionalLight.h"
 #include "AssetManager.h"
+#include "PointLight.h"
 
 using namespace DirectX;
 class Drawable
@@ -28,7 +29,7 @@ protected:
 	float m_xRot{ 0 }, m_yRot{ 0 }, m_zRot{ 0 };
 	float m_xScale{ 1 }, m_yScale{ 1 }, m_zScale{ 1 };
 
-	XMVECTOR m_baseColour{ 0, 0, 0, 1 };
+	XMVECTOR m_Tint{ 0, 0, 0, 1 }, m_AddedColour{ 0, 0, 0, 0 };
 
 public:
 	Drawable(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager* assets, char* texture, char* shader);
@@ -53,7 +54,9 @@ public:
 	void SetScale(XMFLOAT3 scale);
 	void SetColour(XMVECTOR colour);
 
+	void AddColour(XMVECTOR colour);
+
 	void SetContext();
-	virtual void Draw(XMMATRIX view, XMMATRIX projection, Light* ambient = nullptr, DirectionalLight* directional = nullptr);
+	void Draw(XMMATRIX view, XMMATRIX projection, Light* ambient = nullptr, DirectionalLight* directional = nullptr, PointLight* point = nullptr);
 };
 
