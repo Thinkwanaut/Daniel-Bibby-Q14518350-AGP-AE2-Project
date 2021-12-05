@@ -1,0 +1,60 @@
+﻿  Game.cpp
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\dinput.h: DIRECTINPUT_VERSION undefined. Defaulting to version 0x0800
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Enemy.h(7,18): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.h(50,19): warning C4316: 'Light': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.h(51,30): warning C4316: 'DirectionalLight': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.h(52,24): warning C4316: 'PointLight': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(95,128): warning C4316: 'GameObject': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(102,24): warning C4018: '<': signed/unsigned mismatch
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(104,9): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(105,31): warning C4018: '<': signed/unsigned mismatch
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(108,10): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(110,20): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(120,130): warning C4316: 'GameObject': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(121,52): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(121,33): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(128,130): warning C4316: 'GameObject': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(129,84): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(129,31): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(132,32): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(137,136): warning C4316: 'GameObject': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(138,55): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(138,36): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(145,128): warning C4316: 'Enemy': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(146,51): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(146,32): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(152,116): warning C4316: 'Player': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(153,43): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(153,24): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(166,130): warning C4316: 'GameObject': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(167,49): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(167,36): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(167,33): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(176,132): warning C4316: 'GameObject': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(177,51): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(177,33): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(186,85): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(195,131): warning C4316: 'GameObject': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(196,90): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(206,114): warning C4316: 'Skybox': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.cpp(306,94): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Player.cpp
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Enemy.h(7,18): warning C4305: 'initializing': truncation from 'double' to 'float'
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\dinput.h: DIRECTINPUT_VERSION undefined. Defaulting to version 0x0800
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(123,12): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(124,12): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(125,12): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(127,16): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(128,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(146,130): warning C4316: 'Bullet': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(170,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(184,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(207,9): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+  main.cpp
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\dinput.h: DIRECTINPUT_VERSION undefined. Defaulting to version 0x0800
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Enemy.h(7,18): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.h(50,19): warning C4316: 'Light': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.h(51,30): warning C4316: 'DirectionalLight': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Game.h(52,24): warning C4316: 'PointLight': object allocated on the heap may not be aligned 16
+  Generating Code...
+  Daniel Bibby Q14518350 AGP AE2 Project.vcxproj -> C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Debug\Daniel Bibby Q14518350 AGP AE2 Project.exe

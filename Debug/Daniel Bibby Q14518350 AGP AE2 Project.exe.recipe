@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Debug\Daniel Bibby Q14518350 AGP AE2 Project.exe</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles>
+    <ContentFile>
+      <FullPath>C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Debug\shaders.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Debug\skyShaders.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Debug\text2D_shaders.cso</FullPath>
+    </ContentFile>
+  </ContentFiles>
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>
