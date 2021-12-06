@@ -71,7 +71,9 @@ public:
 	void Fall(std::vector<GameObject*> obstacles, float grav = 1, float adjust = 1);
 	void SetFall(bool fall);
 	void GetPushed(std::vector<GameObject*> pushers, std::vector<GameObject*> obstacles);
-	void MoveToTop(GameObject* other, float offset = 0);
+	void MoveToEdgeX(GameObject* other, float offset = 0);
+	void MoveToEdgeY(GameObject* other, float offset = 0);
+	void MoveToEdgeZ(GameObject* other, float offset = 0);
 	void SetPos(float x, float y, float z);
 	void SetPos(XMFLOAT3 pos);
 

@@ -5,7 +5,7 @@ Bullet::Bullet(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager*
 {
 	SetScale(m_Size, m_Size, m_Size);
 	SetCollisionType(ColliderShape::Box);
-	SetColour({ 0, 1, 1, 0 });
+	SetColour({ 0, 1.0f, 1.0f, 1.0f });
 }
 
 void Bullet::Shoot(XMVECTOR start, XMVECTOR target)

@@ -282,19 +282,17 @@ void GameObject::MoveForward(float step, float adjust)
 
 void GameObject::MoveForward(float step, std::vector<GameObject*> others, float adjust)
 {
-	float tempx{ m_x }, tempy{ m_y }, tempz{ m_z };
-
 	m_x += sin(XMConvertToRadians(m_yRot)) * step * cos(XMConvertToRadians(m_xRot)) * adjust;
 	for (GameObject* o : others)
-		if (CheckCollision(o)) m_x = tempx;
+		if (CheckCollision(o)) MoveToEdgeX(o);
 
 	m_y += -sin(XMConvertToRadians(m_xRot)) * step * adjust;
 	for (GameObject* o : others)
-		if (CheckCollision(o)) m_y = tempy;
+		if (CheckCollision(o)) MoveToEdgeY(o);
 
 	m_z += cos(XMConvertToRadians(m_yRot)) * step * cos(XMConvertToRadians(m_xRot)) * adjust;
 	for (GameObject* o : others)
-		if (CheckCollision(o)) m_z = tempz;
+		if (CheckCollision(o)) MoveToEdgeZ(o);
 }
 
 void GameObject::Fall(std::vector<GameObject*> obstacles, float grav, float adjust)
@@ -310,7 +308,7 @@ void GameObject::Fall(std::vector<GameObject*> obstacles, float grav, float adju
 		if (object == this) continue;
 		if (CheckCollision(object))
 		{
-			MoveToTop(object, grav); // Add grav to prevent collision with floor when walking
+			MoveToEdgeY(object, grav); // Add grav to prevent collision with floor when walking
 			return;
 		}
 	}
@@ -340,7 +338,7 @@ void GameObject::GetPushed(std::vector<GameObject*> pushers, std::vector<GameObj
 
 			if (dx < dz && dx < dy) m_x = p->GetX() + (p->GetDimensions().x + GetDimensions().x) * xDir;
 			else if (dz < dy) m_z = p->GetZ() + (p->GetDimensions().z + GetDimensions().z) * zDir;
-			else (p->MoveToTop(this));
+			else (p->MoveToEdgeY(this));
 
 			for (GameObject* o : obstacles)
 			{
@@ -364,12 +362,24 @@ void GameObject::GetPushed(std::vector<GameObject*> pushers, std::vector<GameObj
 	}
 }
 
-void GameObject::MoveToTop(GameObject* other, float offset)
+void GameObject::MoveToEdgeX(GameObject* other, float offset)
+{
+	int xDir = (other->GetX() < m_x) ? 1 : -1;
+	m_x = other->GetX() + ((other->GetDimensions().x + GetDimensions().x) + offset) * xDir;
+}
+
+void GameObject::MoveToEdgeY(GameObject* other, float offset)
 {
 	int yDir = (other->GetY() < m_y) ? 1 : -1;
 	m_y = other->GetY() + ((other->GetDimensions().y + GetDimensions().y) + offset) * yDir;
 	m_Grounded = yDir == 1;
 	m_FallVel = m_Grounded ? 0 : max(m_FallVel, 0);
+}
+
+void GameObject::MoveToEdgeZ(GameObject* other, float offset)
+{
+	int zDir = (other->GetZ() < m_z) ? 1 : -1;
+	m_z = other->GetZ() + ((other->GetDimensions().z + GetDimensions().z) + offset) * zDir;
 }
 
 void GameObject::SetPos(float x, float y, float z)

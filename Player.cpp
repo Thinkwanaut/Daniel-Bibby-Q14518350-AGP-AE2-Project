@@ -4,6 +4,7 @@ Player::Player(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager*
 	: GameObject{ device, context, assets, model, texture, shader }
 {
 	m_Health = m_MaxHealth;
+	mp_2DText = new Text2D("Assets/myFont.png", device, context);
 	mp_Timer = new Timer();
 	mp_Timer->StartTimer("Shoot");
 }
@@ -14,6 +15,11 @@ Player::~Player()
 	{
 		delete mp_Timer;
 		mp_Timer = nullptr;
+	}
+	if (mp_2DText)
+	{
+		delete mp_2DText;
+		mp_2DText = nullptr;
 	}
 }
 
@@ -157,21 +163,29 @@ float Player::GetRandTarget()
 	return ((float)(rand() % (int)((1 - m_Accuracy) * 100 + 1)) / 100.0f) - (1 - m_Accuracy) / 2.0f;
 }
 
-Bullet* Player::Shoot()
+std::vector<Bullet*> Player::Shoot()
 {
-	XMVECTOR gunPos = XMVector3Normalize(XMVector3Cross({ m_LookX, m_dy, m_LookZ }, -m_up));
-	gunPos += XMVector3Normalize(XMVector3Cross(gunPos, { m_LookX, m_dy, m_LookZ, 0}));
-	gunPos *= m_GunOffset;
-	gunPos += {m_x, m_y, m_z};
-	float tx = XMVectorGetX(gunPos) + m_LookX * m_TargetDist + m_TargetDist * GetRandTarget();
-	float ty = XMVectorGetY(gunPos) + m_dy * m_TargetDist + m_TargetDist * GetRandTarget();
-	float tz = XMVectorGetZ(gunPos) + m_LookZ * m_TargetDist + m_TargetDist * GetRandTarget();
-	XMVECTOR gunTarget = { tx, ty, tz };
-	Bullet* bullet = new Bullet(mp_D3DDevice, mp_ImmediateContext, mp_Assets, m_BulletModel, m_BulletTexture, (char*)"shaders.hlsl");
-	bullet->Shoot(gunPos, gunTarget);
+	std::vector<Bullet*> newBullets;
+	if (ShotReady())
+	{
+		for (int s = 0; s < m_ShotNum; s++)
+		{
+			XMVECTOR gunPos = XMVector3Normalize(XMVector3Cross({ m_LookX, m_dy, m_LookZ }, -m_up));
+			gunPos += XMVector3Normalize(XMVector3Cross(gunPos, { m_LookX, m_dy, m_LookZ, 0}));
+			gunPos *= m_GunOffset;
+			gunPos += {m_x, m_y, m_z};
+			float tx = XMVectorGetX(gunPos) + m_LookX * m_TargetDist + m_TargetDist * GetRandTarget();
+			float ty = XMVectorGetY(gunPos) + m_dy * m_TargetDist + m_TargetDist * GetRandTarget();
+			float tz = XMVectorGetZ(gunPos) + m_LookZ * m_TargetDist + m_TargetDist * GetRandTarget();
+			XMVECTOR gunTarget = { tx, ty, tz };
+			newBullets.push_back(new Bullet(mp_D3DDevice, mp_ImmediateContext, mp_Assets, m_BulletModel, m_BulletTexture, (char*)"shaders.hlsl"));
+			newBullets[s]->Shoot(gunPos, gunTarget);
+		}
 
-	mp_Timer->StartTimer("Shoot");
-	return bullet;
+		mp_Timer->StartTimer("Shoot");
+	}
+
+	return newBullets;
 }
 
 void Player::SpikeCheck(std::vector<GameObject*> spikes)
@@ -180,12 +194,12 @@ void Player::SpikeCheck(std::vector<GameObject*> spikes)
 	{
 		if (CheckCollision(spike))
 		{
-			m_Health = max(m_Health - 1, 0);
+			GetHit();
 			m_Thrown = true;
 			XMFLOAT2 throwDir = Normalise2D({ m_x - spike->GetX(), m_z - spike->GetZ() });
 			m_ThrowVelX = throwDir.x * m_JumpSpeed / 2.0f;
 			m_ThrowVelZ = throwDir.y * m_JumpSpeed / 2.0f;
-			MoveToTop(spike);
+			MoveToEdgeY(spike);
 			Jump(true);
 		}
 	}
@@ -197,12 +211,19 @@ int Player::EnemyCheck(std::vector<Enemy*> enemies)
 	{
 		if (CheckCollision(enemies[e]))
 		{
-			m_Health = max(m_Health - 1, 0);
+			GetHit();
 			return e;
 		}
 	}
 
 	return -1;
+}
+
+void Player::GetHit()
+{
+	m_Health = max(m_Health - 1, 0);
+	m_HealthColour = { 1.0f, 0.0f, 0.0f, 1.0f };
+	mp_Timer->StartTimer("HealthFlash");
 }
 
 int Player::CollectItem(std::vector<GameObject*> items, Collectable itemType)
@@ -215,9 +236,13 @@ int Player::CollectItem(std::vector<GameObject*> items, Collectable itemType)
 			{
 			case Collectable::HEALTH:
 				m_Health = min(m_Health + 1, m_MaxHealth);
+				m_HealthColour = { 0.0f, 1.0f, 0.0f, 1.0f };
+				mp_Timer->StartTimer("HealthFlash");
 				break;
 			case Collectable::KEY:
 				m_Score++;
+				m_ScoreColour = { 1.0f, 1.0f, 0.0f, 1.0f };
+				mp_Timer->StartTimer("ScoreFlash");
 				break;
 			default:
 				break;
@@ -228,19 +253,14 @@ int Player::CollectItem(std::vector<GameObject*> items, Collectable itemType)
 	return -1;
 }
 
-int Player::Health()
-{
-	return m_Health;
-}
-
-int Player::Score()
-{
-	return m_Score;
-}
-
 bool Player::Dead()
 {
 	return m_Health <= 0;
+}
+
+bool Player::Won()
+{
+	return m_Score >= m_MaxScore;
 }
 
 XMMATRIX Player::GetViewMatrix()
@@ -263,4 +283,15 @@ XMFLOAT2 Player::Normalise2D(XMFLOAT2 vector)
 	if (magnitude > 0)
 		return XMFLOAT2{ vector.x / magnitude, vector.y / magnitude };
 	else return vector;
+}
+
+void Player::ShowUI()
+{
+	if (mp_Timer->GetTimer("HealthFlash") > m_FlashTime) m_HealthColour = { 1.0f, 1.0f, 1.0f, 1.0f };
+	if (mp_Timer->GetTimer("ScoreFlash") > m_FlashTime) m_ScoreColour = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	mp_2DText->AddText("(+)", 0.0f, 0.0f, 0.1f, { 0.0f, 1.0f, 0.0f, 0.7f }, true); //Will use text for basic UI images
+	mp_2DText->AddText("HP-" + std::to_string((int)m_Health), -0.9f, 0.9f, 0.05f, m_HealthColour);
+	mp_2DText->AddText("Score-" + std::to_string(m_Score) + "/" + std::to_string(m_MaxScore), -0.9f, 0.8f, 0.05f, m_ScoreColour);
+	mp_2DText->RenderText();
 }

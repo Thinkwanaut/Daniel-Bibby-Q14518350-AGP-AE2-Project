@@ -25,6 +25,7 @@ void Timer::StartTimer(std::string name)
 
 float Timer::GetTimer(std::string name)
 {
+	if (m_Timers.find(name) == m_Timers.end()) return -1;
 	__int64 curTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&curTime);
 	return (curTime - m_Timers[name]) * m_SecondsPerCount;

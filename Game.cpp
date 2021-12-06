@@ -178,7 +178,7 @@ void Game::CreateLevel()
 					mp_Player->SetPos(x, m_ObjectHeight, z);
 					mp_Player->SetScale(m_BlockSize * 0.1f, m_BlockSize * 1.25f, m_BlockSize * 0.1f);
 					mp_Player->SetCollisionType(ColliderShape::Box);
-					mp_Player->SetBullet(SPHERE_FILE, ORB_FILE);
+					mp_Player->SetBullet(SPHERE_FILE, BLANK_FILE);
 					break;
 
 				default:
@@ -227,6 +227,7 @@ void Game::CreateLevel()
 		}
 
 	}
+
 	mp_Pushers.insert(mp_Pushers.end(), mp_Movables.begin(), mp_Movables.end());
 	mp_Pushers.push_back(mp_Player);
 
@@ -263,8 +264,11 @@ int Game::Run()
 void Game::MovePlayer(float adjust)
 {
 	mp_Player->Move(mp_Input, mp_Obstacles, m_Gravity, adjust);
-	if (mp_Input->MouseButtonHeld(MOUSE::LCLICK) && mp_Player->ShotReady()) mp_Bullets.push_back(mp_Player->Shoot());
-
+	if (mp_Input->MouseButtonHeld(MOUSE::LCLICK))
+	{
+		std::vector<Bullet*> newBullets = mp_Player->Shoot();
+		mp_Bullets.insert(mp_Bullets.begin(), newBullets.begin(), newBullets.end());
+	}
 	int enemyHit = mp_Player->EnemyCheck(mp_Enemies);
 	if (enemyHit >= 0) mp_Enemies.erase(std::begin(mp_Enemies) + enemyHit);
 
@@ -284,7 +288,7 @@ void Game::MovePlayer(float adjust)
 		m_PauseText = "DEFEAT";
 	}
 
-	else if (mp_Player->Score() >= m_MaxScore)
+	else if (mp_Player->Won())
 	{
 		m_GameEnded = true;
 		m_PauseText = "VICTORY";
@@ -401,10 +405,7 @@ void Game::Draw()
 	for (GameObject* m : mp_Movables) m->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
 	for (GameObject* s : mp_Spikes) s->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
 
-	mp_2DText->AddText("(+)", 0.0f, 0.0f, 0.1f, { 0.0f, 1.0f, 0.0f, 0.7f }, true); //Will use text for basic UI images
-	mp_2DText->AddText("HP-" + std::to_string(mp_Player->Health()), -0.9f, 0.9f, 0.05f, { 1.0f, 1.0f, 1.0f, 1.0f });
-	mp_2DText->AddText("Score-" + std::to_string(mp_Player->Score()) + "/" + std::to_string(m_MaxScore), -0.9f, 0.8f, 0.05f, {1.0f, 1.0f, 1.0f, 1.0f});
-	mp_2DText->RenderText();
+	mp_Player->ShowUI();
 
 	mp_Window->Present();
 }

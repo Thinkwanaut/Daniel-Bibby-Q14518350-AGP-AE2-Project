@@ -41,6 +41,7 @@ private:
 	char* ENEMY_FILE = (char*)"Assets/EnemyTexture.bmp";
 	char* HEALTH_FILE = (char*)"Assets/HealthTexture.bmp";
 	char* ORB_FILE = (char*)"Assets/OrbTexture.bmp";
+	char* BLANK_FILE = (char*)"Assets/BlankTexture.bmp";
 	char* SKY_FILE = (char*)"Assets/skybox02.dds";
 	char* SHADER_FILE = (char*)"shaders.hlsl";
 	char* SKY_SHADER_FILE = (char*)"skyShaders.hlsl";
@@ -66,11 +67,9 @@ private:
 
 	Skybox* mp_Skybox = nullptr;
 
-	float m_BlockSize{ 10 }, m_FloorHeight{ -10 }, m_ObjectHeight{ 0 }, m_Gravity{ 0.001f }, m_SkyOffset{ 1 }, m_EnemyInterval{ 1 };
+	float m_BlockSize{ 10 }, m_FloorHeight{ -10 }, m_ObjectHeight{ 0 }, m_Gravity{ 0.001f }, m_SkyOffset{ 1 }, m_EnemyInterval{ 5 };
 
 	bool m_SingleFloor{ false }, m_Paused{ false }, m_GameEnded{ false };
-
-	int m_MaxScore{ 30 };
 
 	string m_PauseText{ "PAUSED-(P)" };
 
