@@ -8,12 +8,12 @@ Bullet::Bullet(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager*
 	SetColour({ 0, 1.0f, 1.0f, 1.0f });
 }
 
-void Bullet::Shoot(XMVECTOR start, XMVECTOR target, int damage, bool throughEnemies)
+void Bullet::Shoot(XMFLOAT3 start, XMFLOAT3 target, int damage, bool throughEnemies)
 {
 	m_Start = start;
-	SetPos(XMVectorGetX(start), XMVectorGetY(start), XMVectorGetZ(start));
-	XMVECTOR targetVec = target - start;
-	m_Direction = XMVector3Normalize(target - start);
+	SetPos(start.x, start.y, start.z);
+	XMVECTOR targetVec = XMVectorSet(target.x - start.x, target.y - start.y, target.z - start.z, 0.0f);
+	m_Direction = XMVector3Normalize(targetVec);
 	m_Damage = damage;
 	m_ThroughEnemies = throughEnemies;
 }
@@ -27,7 +27,7 @@ bool Bullet::Move(std::vector<GameObject*> Obstacles, float lagAdjust)
 	for (GameObject* o : Obstacles)
 		if (CheckCollision(o)) return true;
 
-	XMVECTOR aToB = XMVectorSet(m_x, m_y, m_z, 0.0f) - m_Start; // Check for max travel distance, then destroy
+	XMVECTOR aToB = XMVectorSet(m_x - m_Start.x, m_y - m_Start.y, m_z - m_Start.z, 0.0f); // Check for max travel distance, then destroy
 	float d_sq = powf(XMVectorGetX(aToB), 2) + powf(XMVectorGetY(aToB), 2) + powf(XMVectorGetZ(aToB), 2);
 
 	return d_sq > m_MaxDSq;

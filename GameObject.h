@@ -65,6 +65,7 @@ public:
 	void SetCollisionType(ColliderShape shape);
 	void LookAt_XZ(float x, float z);
 	void LookAt(float x, float y, float z);
+	void LookAtRelative(float x, float y, float z);
 	void MoveForward_XZ(float step, std::vector<GameObject*> others, float adjust = 1);
 	void MoveForward(float step, float adjust = 1);
 	void MoveForward(float step, std::vector<GameObject*> others, float adjust = 1);
@@ -77,6 +78,7 @@ public:
 	void SetPos(float x, float y, float z);
 	void SetPos(XMFLOAT3 pos);
 
+	void UpdateConstantBuffer(XMMATRIX view, XMMATRIX projection, Light* ambient = nullptr, DirectionalLight* directional = nullptr, PointLight* point = nullptr);
 	void Draw(XMMATRIX view, XMMATRIX projection, Light* ambient, DirectionalLight* directional = nullptr, PointLight* point = nullptr);
 };
 

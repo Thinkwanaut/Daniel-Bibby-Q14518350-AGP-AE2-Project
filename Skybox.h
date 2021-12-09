@@ -16,18 +16,18 @@ struct VERTEX_INFO
 	XMFLOAT3 Normal;
 };
 
-const int NUMVERTS = 36;
+const int NUM_VERTS = 36;
 
 class Skybox : public Drawable
 {
 private:
 	ID3D11RasterizerState* mp_RasterSolid = 0;
-	ID3D11RasterizerState* mp_RasterSkybox = 0;
+	ID3D11RasterizerState* mp_RasterCullBack = 0;
 	ID3D11DepthStencilState* mp_DepthWriteSolid = 0;
 	ID3D11DepthStencilState* mp_DepthWriteSkybox = 0;
 
 	ID3D11Buffer* mp_VertexBuffer;
-	VERTEX_INFO m_Vertices[NUMVERTS] =
+	VERTEX_INFO m_Vertices[NUM_VERTS] =
 	{
 		//BACK
 		{XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT2(0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 1.0f)},
@@ -79,6 +79,8 @@ public:
 
 	HRESULT CreateBuffer();
 	HRESULT InitStates();
+
+	void UpdateConstantBuffer(XMMATRIX view, XMMATRIX projection);
 	void Draw(XMMATRIX view, XMMATRIX projection);
 };
 

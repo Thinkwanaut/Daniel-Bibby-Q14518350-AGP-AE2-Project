@@ -57,6 +57,5 @@ public:
 	void AddColour(XMVECTOR colour);
 
 	void SetContext();
-	void Draw(XMMATRIX view, XMMATRIX projection, Light* ambient = nullptr, DirectionalLight* directional = nullptr, PointLight* point = nullptr);
 };
 

@@ -21,9 +21,12 @@ Player::Player(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager*
 	};*/
 	
 	// MAKE YOUR OWN :)
-	m_Guns.push_back(Gun{ 0.01f, 0.7f, 0.9f, 1, 1, false, "()"});
-	m_Guns.push_back(Gun{ 0.25f, 0.5f, 0.75f, 1, 10, false, "( )", 70.0f});
+	m_Guns.push_back(Gun{ 0.0025f, 0.7f, 0.9f, 1, 1, false, "()"});
+	m_Guns.push_back(Gun{ 0.25f, 0.5f, 0.75f, 1, 25, false, "( )", 70.0f});
 	m_Guns.push_back(Gun{ 1.0f, 0.8f, 1.0f, 3, 1, true, "(+)", 45.0f});
+
+	mp_GunModel = new GameObject(device, context, assets, (char*)"Assets/Cube.obj", (char*)"Assets/BlankTexture.bmp", (char*)"shaders.hlsl");
+	mp_GunModel->SetScale(0.5f, 0.5f, 1.0f);
 }
 
 Player::~Player()
@@ -87,15 +90,11 @@ void Player::Forward(float movement, std::vector<GameObject*> obstacles)
 {
 	m_x += m_dx * movement * m_speed;
 	for (GameObject* obstacle : obstacles)
-	{
 		if (CheckCollision(obstacle)) m_x -= m_dx * movement * m_speed;
-	}
-
+	
 	m_z += m_dz * movement * m_speed;
 	for (GameObject* obstacle : obstacles)
-	{
 		if (CheckCollision(obstacle)) m_z -= m_dz * movement * m_speed;
-	}
 }
 
 void Player::Strafe(float movement, std::vector<GameObject*> obstacles)
@@ -104,14 +103,11 @@ void Player::Strafe(float movement, std::vector<GameObject*> obstacles)
 
 	m_x += XMVectorGetX(right) * movement * m_speed;
 	for (GameObject* obstacle : obstacles)
-	{
 		if (CheckCollision(obstacle)) m_x -= XMVectorGetX(right) * movement * m_speed;
-	}
+	
 	m_z += XMVectorGetZ(right) * movement * m_speed;
 	for (GameObject* obstacle : obstacles)
-	{
 		if (CheckCollision(obstacle)) m_z -= XMVectorGetZ(right) * movement * m_speed;
-	}
 }
 
 void Player::Fly(float yAdd)
@@ -158,7 +154,7 @@ void Player::SetCameraLook()
 	m_dz = cos(XMConvertToRadians(m_CamRotY));
 	m_dy = sin(XMConvertToRadians(min(max(m_CamRotX, -m_AngleClamp), m_AngleClamp)));
 
-	m_LookX = m_dx* cos(XMConvertToRadians(min(max(m_CamRotX, -m_AngleClamp), m_AngleClamp)));
+	m_LookX = m_dx * cos(XMConvertToRadians(min(max(m_CamRotX, -m_AngleClamp), m_AngleClamp)));
 	m_LookZ = m_dz * cos(XMConvertToRadians(min(max(m_CamRotX, -m_AngleClamp), m_AngleClamp)));
 }
 
@@ -194,6 +190,14 @@ void Player::SetGun(Input* input)
 	}
 
 	m_Zoomed = input->MouseButtonHeld(MOUSE::RCLICK);
+
+	XMFLOAT3 offset = (m_Zoomed) ? m_ZoomOffset : m_HipOffset;
+	XMVECTOR gunPos = XMVector3Normalize(XMVector3Cross({ m_LookX, m_dy, m_LookZ }, -m_up)) * offset.x;
+	gunPos += XMVector3Normalize(XMVector3Cross(gunPos, { m_LookX, m_dy, m_LookZ, 0 })) * offset.y;
+	gunPos += XMVector3Normalize({ m_LookX, m_dy, m_LookZ, 0 }) * offset.z;
+	gunPos += {m_x, m_y, m_z};
+	mp_GunModel->SetPos(XMVectorGetX(gunPos), XMVectorGetY(gunPos), XMVectorGetZ(gunPos));
+	mp_GunModel->LookAtRelative(m_LookX, m_dy, m_LookZ);
 }
 
 std::vector<Bullet*> Player::Shoot()
@@ -203,16 +207,13 @@ std::vector<Bullet*> Player::Shoot()
 	{
 		for (int s = 0; s < m_Guns[m_GunIndex].ShotNum; s++)
 		{
-			XMVECTOR gunPos = XMVector3Normalize(XMVector3Cross({ m_LookX, m_dy, m_LookZ }, -m_up));
-			gunPos += XMVector3Normalize(XMVector3Cross(gunPos, { m_LookX, m_dy, m_LookZ, 0}));
-			gunPos *= (m_Zoomed) ? m_ZoomOffset : m_HipOffset;
-			gunPos += {m_x, m_y, m_z};
-			float tx = XMVectorGetX(gunPos) + m_LookX * m_TargetDist + m_TargetDist * GetRandTarget();
-			float ty = XMVectorGetY(gunPos) + m_dy * m_TargetDist + m_TargetDist * GetRandTarget();
-			float tz = XMVectorGetZ(gunPos) + m_LookZ * m_TargetDist + m_TargetDist * GetRandTarget();
-			XMVECTOR gunTarget = { tx, ty, tz };
+			float tx = mp_GunModel->GetX() + m_LookX * m_TargetDist + m_TargetDist * GetRandTarget();
+			float ty = mp_GunModel->GetY() + m_dy * m_TargetDist + m_TargetDist * GetRandTarget();
+			float tz = mp_GunModel->GetZ() + m_LookZ * m_TargetDist + m_TargetDist * GetRandTarget();
+			XMFLOAT3 gunTarget = { tx, ty, tz };
+			XMFLOAT3 bullPos = { m_LookX * mp_GunModel->GetScale().z + mp_GunModel->GetPos().x, m_dy * mp_GunModel->GetScale().z + mp_GunModel->GetPos().y, m_LookZ * mp_GunModel->GetScale().z + mp_GunModel->GetPos().z };
 			newBullets.push_back(new Bullet(mp_D3DDevice, mp_ImmediateContext, mp_Assets, m_BulletModel, m_BulletTexture, (char*)"shaders.hlsl"));
-			newBullets[s]->Shoot(gunPos, gunTarget, m_Guns[m_GunIndex].Damage, m_Guns[m_GunIndex].ThroughEnemies);
+			newBullets[s]->Shoot(bullPos, gunTarget, m_Guns[m_GunIndex].Damage, m_Guns[m_GunIndex].ThroughEnemies);
 		}
 
 		mp_Timer->StartTimer("Shoot");
@@ -323,8 +324,10 @@ XMFLOAT2 Player::Normalise2D(XMFLOAT2 vector)
 	else return vector;
 }
 
-void Player::ShowUI()
+void Player::ShowHUD(XMMATRIX projection, Light* ambient, DirectionalLight* directional, PointLight* point)
 {
+	mp_GunModel->Draw(GetViewMatrix(), projection, ambient, directional, point);
+
 	if (mp_Timer->GetTimer("HealthFlash") > m_FlashTime) m_HealthColour = { 1.0f, 1.0f, 1.0f, 1.0f };
 	if (mp_Timer->GetTimer("ScoreFlash") > m_FlashTime) m_ScoreColour = { 1.0f, 1.0f, 1.0f, 1.0f };
 

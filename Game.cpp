@@ -11,7 +11,7 @@ Game::Game(_In_ HINSTANCE hInstance, _In_ int nCmdShow, Window* window)
 	mp_Assets->LoadTexture(BOX_FILE);
 	mp_Assets->LoadTexture(HEALTH_FILE);
 	mp_Assets->LoadTexture(ORB_FILE);
-	mp_Assets->LoadShaders(SKY_SHADER_FILE, true);
+	mp_Assets->LoadShaders(SKY_SHADER_FILE, DRAW_TYPE::Skybox);
 
 
 	HRESULT hr;
@@ -373,6 +373,8 @@ void Game::Update()
 		for (GameObject* s : mp_Spikes) s->Fall(mp_Obstacles, m_Gravity, adjust);
 		XMFLOAT3 camPos = mp_Player->GetPos();
 		mp_Skybox->SetPos(camPos.x, camPos.y + m_SkyOffset, camPos.z);
+
+
 		Draw();
 	}
 	else
@@ -391,11 +393,9 @@ void Game::Update()
 
 void Game::Draw()
 {
-	XMMATRIX projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(mp_Player->GetProjectionAngle()), mp_Window->Width() / mp_Window->Height(), 1.0, 1000.0);
+	XMMATRIX projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(mp_Player->GetProjectionAngle()), mp_Window->Width() / mp_Window->Height(), 0.1f, 1000.0f);
 
 	mp_Skybox->Draw(mp_Player->GetViewMatrix(), projection);
-
-	mp_DLight->Rotate({ 1, 0, 0 });
 
 	for (GameObject* o : mp_Obstacles) o->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
 	for (GameObject* s : mp_Spawns) s->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
@@ -406,7 +406,7 @@ void Game::Draw()
 	for (GameObject* m : mp_Movables) m->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
 	for (GameObject* s : mp_Spikes) s->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
 
-	mp_Player->ShowUI();
+	mp_Player->ShowHUD(projection, mp_ALight, mp_DLight);
 
 	mp_Window->Present();
 }

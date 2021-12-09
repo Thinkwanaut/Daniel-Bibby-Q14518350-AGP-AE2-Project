@@ -91,13 +91,13 @@ ObjFileModel* AssetManager::GetModel(char* filename)
 	return mp_models[filename];
 }
 
-HRESULT AssetManager::LoadShaders(char* filename, bool skybox)
+HRESULT AssetManager::LoadShaders(char* filename, DRAW_TYPE drawType)
 {
-	ID3D11VertexShader* VShader;
-	ID3D11PixelShader* PShader;
-	ID3D11InputLayout* InputLayout;
-	ID3D11Buffer* Buffer;
-	ID3D11SamplerState* Sampler;
+	ID3D11VertexShader* VShader{};
+	ID3D11PixelShader* PShader{};
+	ID3D11InputLayout* InputLayout{};
+	ID3D11Buffer* Buffer{};
+	ID3D11SamplerState* Sampler{};
 
 	ID3DBlob* VS, * PS, * error;
 
@@ -125,42 +125,31 @@ HRESULT AssetManager::LoadShaders(char* filename, bool skybox)
 	if (FAILED(hr)) return hr;
 
 	//Create/set input layout object
-	if (skybox)
+	switch (drawType)
 	{
-		D3D11_INPUT_ELEMENT_DESC iedesc[] =
-		{
-			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"COLOUR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		};
-		hr = mp_d3ddevice->CreateInputLayout(iedesc, ARRAYSIZE(iedesc), VS->GetBufferPointer(), VS->GetBufferSize(), &InputLayout);
-		if (FAILED(hr)) return hr;
-	}
-	else
-	{
-		D3D11_INPUT_ELEMENT_DESC iedesc[] =
-		{
-			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
-		};
-		hr = mp_d3ddevice->CreateInputLayout(iedesc, ARRAYSIZE(iedesc), VS->GetBufferPointer(), VS->GetBufferSize(), &InputLayout);
-		if (FAILED(hr)) return hr;
-	}
+	case DRAW_TYPE::Model:
+		ModelLayout(InputLayout, VS);
+		break;
 
+	case DRAW_TYPE::Skybox:
+		SkyboxLayout(InputLayout, VS);
+		break;
+
+	case DRAW_TYPE::Particle:
+		ParticleLayout(InputLayout, VS);
+		break;
+	}
 
 	D3D11_BUFFER_DESC bufferDesc;
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = sizeof(DRAW_BUFFER);
+	bufferDesc.ByteWidth = m_BufferSizes[(int)drawType];
 	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-
 	hr = mp_d3ddevice->CreateBuffer(&bufferDesc, NULL, &Buffer);
-	if (FAILED(hr)) return hr;
 
 	D3D11_SAMPLER_DESC sampler_desc;
 	ZeroMemory(&sampler_desc, sizeof(sampler_desc));
-	sampler_desc.Filter = (skybox) ? D3D11_FILTER_MIN_MAG_MIP_LINEAR : D3D11_FILTER_MIN_MAG_MIP_POINT;
+	sampler_desc.Filter = (drawType == DRAW_TYPE::Skybox) ? D3D11_FILTER_MIN_MAG_MIP_LINEAR : D3D11_FILTER_MIN_MAG_MIP_POINT;
 	sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -170,9 +159,49 @@ HRESULT AssetManager::LoadShaders(char* filename, bool skybox)
 
 	mp_VShaders[filename] = VShader;
 	mp_PShaders[filename] = PShader;
+	mp_Samplers[filename] = Sampler;
 	mp_InputLayouts[filename] = InputLayout;
 	mp_Buffers[filename] = Buffer;
-	mp_Samplers[filename] = Sampler;
+
+	return hr;
+}
+
+HRESULT AssetManager::ModelLayout(ID3D11InputLayout*& layout, ID3DBlob* VS)
+{
+	D3D11_INPUT_ELEMENT_DESC iedesc[] =
+	{
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	};
+	HRESULT hr = mp_d3ddevice->CreateInputLayout(iedesc, ARRAYSIZE(iedesc), VS->GetBufferPointer(), VS->GetBufferSize(), &layout);
+	if (FAILED(hr)) return hr;
+
+	return hr;
+}
+
+HRESULT AssetManager::SkyboxLayout(ID3D11InputLayout*& layout, ID3DBlob* VS)
+{
+	D3D11_INPUT_ELEMENT_DESC iedesc[] =
+	{
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"COLOUR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	};
+	HRESULT hr = mp_d3ddevice->CreateInputLayout(iedesc, ARRAYSIZE(iedesc), VS->GetBufferPointer(), VS->GetBufferSize(), &layout);
+	if (FAILED(hr)) return hr;
+
+	return hr;
+}
+
+HRESULT AssetManager::ParticleLayout(ID3D11InputLayout*& layout, ID3DBlob* VS)
+{
+	D3D11_INPUT_ELEMENT_DESC iedesc[] =
+	{
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	};
+	HRESULT hr = mp_d3ddevice->CreateInputLayout(iedesc, ARRAYSIZE(iedesc), VS->GetBufferPointer(), VS->GetBufferSize(), &layout);
+	if (FAILED(hr)) return hr;
 
 	return hr;
 }

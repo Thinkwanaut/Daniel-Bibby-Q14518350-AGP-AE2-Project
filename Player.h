@@ -34,7 +34,7 @@ private:
 	float m_dx{ 0 }, m_dy{ 0 }, m_dz{ 0 }, m_CamRotX{ 0 }, m_CamRotY{ 0 }, m_AngleClamp{ 89.9f }, m_LookX{ 0 }, m_LookZ{ 0 };
 	float m_speed{ 0.05f }, m_JumpSpeed{ .25f }, m_Sprint{ 2.0 };
 	XMVECTOR m_position{}, m_lookAt{}, m_up{};
-	XMVECTOR m_HipOffset{ 1.5f, 3.0f, 1.5f }, m_ZoomOffset{ 0.5f, 1.0f, 0.5f };
+	XMFLOAT3 m_HipOffset{ 2.0f, 3.0f, 3.0f }, m_ZoomOffset{ 0.5f, 1.5f, 3.0f };
 	XMFLOAT4 m_HealthColour{ 1.0f, 1.0f, 1.0f, 1.0f }, m_ScoreColour{ 1.0f, 1.0f, 1.0f, 1.0f };
 	float m_TargetDist{ 100 }, m_MaxHealth{ 10 }, m_Health{ 10 }, m_FlashTime{ 0.2f }, m_DefaultProjectionAngle{ 90.0f };
 	float m_ThrowVelX{ 0 }, m_ThrowVelZ{ 0 };
@@ -49,6 +49,7 @@ private:
 	std::vector<Gun> m_Guns;
 	int m_GunIndex{ 0 };
 
+	GameObject* mp_GunModel = nullptr;
 	Text2D* mp_2DText = nullptr;
 	Timer* mp_Timer;
 	
@@ -85,6 +86,6 @@ public:
 	XMFLOAT3 GetPos();
 	XMFLOAT2 Normalise2D(XMFLOAT2 vector);
 
-	void ShowUI();
+	void ShowHUD(XMMATRIX projection, Light* ambient, DirectionalLight* directional = nullptr, PointLight* point = nullptr);
 };
 

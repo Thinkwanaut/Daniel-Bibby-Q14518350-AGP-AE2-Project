@@ -11,11 +11,6 @@ struct VOut
 cbuffer CBuffer0
 {
 	matrix WVPMatrix;
-	float4 directional_light_vector;
-	float4 directional_light_colour;
-	float4 ambient_light_colour;
-	float4 point_light_position;
-	float4 point_light_colour;
 };
 
 VOut VShader(float4 position : POSITION, float3 texcoord : TEXCOORD)

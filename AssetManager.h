@@ -11,7 +11,7 @@
 #include "objfilemodel.h"
 
 using namespace DirectX;
-struct DRAW_BUFFER
+struct MODEL_BUFFER
 {
 	XMMATRIX WorldViewProjection;
 	XMVECTOR tint_colour;
@@ -21,6 +21,22 @@ struct DRAW_BUFFER
 	XMVECTOR ambient_light_colour;
 	XMVECTOR point_light_position;
 	XMVECTOR point_light_colour;
+};
+
+struct SKYBOX_BUFFER
+{
+	XMMATRIX WorldViewProjection;
+};
+
+struct PARTICLE_BUFFER
+{
+	XMMATRIX WorldViewProjection;
+	XMFLOAT4 colour;
+};
+
+enum class DRAW_TYPE
+{
+	Model, Skybox, Particle
 };
 
 class AssetManager
@@ -37,12 +53,17 @@ private:
 	ID3D11Device* mp_d3ddevice = NULL;
 	ID3D11DeviceContext* mp_immediateContext = NULL;
 
+	UINT64 m_BufferSizes[3] = { sizeof(MODEL_BUFFER), sizeof(SKYBOX_BUFFER) , sizeof(PARTICLE_BUFFER) };
+
 public:
 	AssetManager(ID3D11Device* device, ID3D11DeviceContext* context);
 	~AssetManager();
 
 	void LoadTexture(char* filename);
-	HRESULT LoadShaders(char* filename, bool skybox = false);
+	HRESULT LoadShaders(char* filename, DRAW_TYPE drawType = DRAW_TYPE::Model);
+	HRESULT ModelLayout(ID3D11InputLayout*& layout, ID3DBlob* VS);
+	HRESULT SkyboxLayout(ID3D11InputLayout*& layout, ID3DBlob* VS);
+	HRESULT ParticleLayout(ID3D11InputLayout*& layout, ID3DBlob* VS);
 	void LoadModel(char* filename);
 
 	ID3D11ShaderResourceView* GetTexture(char* filename);

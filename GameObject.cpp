@@ -265,6 +265,12 @@ void GameObject::LookAt(float x, float y, float z)
 	m_xRot = XMConvertToDegrees(-atan2f(y - m_y, powf(powf(x - m_x, 2) + powf(z - m_z, 2), 0.5f)));
 }
 
+void GameObject::LookAtRelative(float x, float y, float z)
+{
+	LookAt_XZ(x + m_x, z + m_z);
+	m_xRot = XMConvertToDegrees(-atan2f(y, powf(powf(x, 2) + powf(z, 2), 0.5f)));
+}
+
 void GameObject::MoveForward_XZ(float step, std::vector<GameObject*> others, float adjust)
 {
 	m_x += sin(XMConvertToRadians(m_yRot)) * step * adjust;
@@ -394,9 +400,29 @@ void GameObject::SetPos(XMFLOAT3 pos)
 	m_PrevX = pos.x; m_PrevY = pos.y; m_PrevZ = pos.z;
 }
 
+void GameObject::UpdateConstantBuffer(XMMATRIX view, XMMATRIX projection, Light* ambient, DirectionalLight* directional, PointLight* point)
+{
+	XMMATRIX world = GetWorldMatrix();
+	XMMATRIX transpose = XMMatrixTranspose(world);
+	MODEL_BUFFER cb{};
+
+	cb.WorldViewProjection = world * view * projection;
+	cb.tint_colour = m_Tint;
+	cb.added_colour = m_AddedColour;
+	cb.ambient_light_colour = (ambient) ? ambient->Colour() : XMVECTOR({ 0.5f, 0.5f, 0.5f, 1 });
+	cb.directional_light_colour = (directional) ? directional->Colour() : XMVECTOR({ 0, 0, 0, 1 });
+	cb.directional_light_vector = (directional) ? XMVector3Transform(directional->Direction(), transpose) : XMVECTOR({ 0, 0, 0 });
+	cb.directional_light_vector = XMVector3Normalize(cb.directional_light_vector);
+	cb.point_light_colour = (point) ? point->Colour() : XMVECTOR({ 0, 0, 0, 1 });
+	cb.point_light_position = (point) ? point->Position() : XMVECTOR({ 0, 0, 0 });
+
+	mp_ImmediateContext->UpdateSubresource(mp_ConstantBuffer, 0, 0, &cb, 0, 0);
+}
+
 void GameObject::Draw(XMMATRIX view, XMMATRIX projection, Light* ambient, DirectionalLight* directional, PointLight* point)
 {
-	Drawable::Draw(view, projection, ambient, directional, point);
+	SetContext();
+	UpdateConstantBuffer(view, projection, ambient, directional, point);
 	mp_Object->Draw();
 
 	m_PrevX = m_x; m_PrevY = m_y; m_PrevZ = m_z;

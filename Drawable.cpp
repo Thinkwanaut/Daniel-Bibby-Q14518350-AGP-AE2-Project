@@ -109,24 +109,3 @@ void Drawable::SetContext()
 	mp_ImmediateContext->PSSetShaderResources(0, 1, &mp_Texture);
 	mp_ImmediateContext->PSSetSamplers(0, 1, &mp_Sampler);
 }
-
-void Drawable::Draw(XMMATRIX view, XMMATRIX projection, Light* ambient, DirectionalLight* directional, PointLight* point)
-{
-	SetContext();
-
-	XMMATRIX world = GetWorldMatrix();
-	XMMATRIX transpose = XMMatrixTranspose(world);
-	DRAW_BUFFER cb{};
-
-	cb.WorldViewProjection = world * view * projection;
-	cb.tint_colour = m_Tint;
-	cb.added_colour = m_AddedColour;
-	cb.ambient_light_colour = (ambient) ? ambient->Colour() : XMVECTOR({0.5f, 0.5f, 0.5f, 1});
-	cb.directional_light_colour = (directional) ? directional->Colour() : XMVECTOR({ 0, 0, 0, 1 });
-	cb.directional_light_vector = (directional) ? XMVector3Transform(directional->Direction(), transpose) : XMVECTOR({ 0, 0, 0 });
-	cb.directional_light_vector = XMVector3Normalize(cb.directional_light_vector);
-	cb.point_light_colour = (point) ? point->Colour() : XMVECTOR({ 0, 0, 0, 1 });
-	cb.point_light_position = (point) ? point->Position() : XMVECTOR({ 0, 0, 0 });
-
-	mp_ImmediateContext->UpdateSubresource(mp_ConstantBuffer, 0, 0, &cb, 0, 0);
-}
