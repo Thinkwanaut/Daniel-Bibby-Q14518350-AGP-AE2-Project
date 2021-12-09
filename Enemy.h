@@ -6,7 +6,7 @@ class Enemy :
 {
 private:
     float m_Speed{ 0.05f }, m_Size{ 3.0f }, m_FlashTime{ 0.1f };
-    XMVECTOR m_FlashCol{ 0.5f, 0.0f, 0.0f, 1.0f }, m_DefaultCol{};
+    XMVECTOR m_FlashCol{ 0.75f, 0.0f, 0.0f, 1.0f }, m_DefaultCol{};
     int m_Health{ 3 };
 
     char* m_KeyModel = nullptr;
@@ -20,7 +20,7 @@ public:
     void SetKey(char* model, char* texture);
 
     void Move(GameObject* target, std::vector<GameObject*> Obstacles, float lagAdjust=1);
-    void GetHit();
+    void GetHit(int damage = 1);
     bool IsDead();
 
     GameObject* SpawnKey();

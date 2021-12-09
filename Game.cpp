@@ -210,7 +210,7 @@ void Game::CreateLevel()
 			int total = m_Layout.size() * m_Layout[0].length();
 			int completed = row * m_Layout[0].length() + column;
 			int percent = (int)((float)completed / (float)total * 100);
-			mp_2DText->AddText(std::to_string(percent) + "%", 0, 0, 0.2, { 0, 1, 1, 1 }, true);
+			mp_2DText->AddText(std::to_string(percent) + "%", 0, 0, 0.2, { 0, 1, 1, 1 }, Alignment::Centre);
 			mp_2DText->RenderText();
 			mp_Window->Present();
 
@@ -264,6 +264,7 @@ int Game::Run()
 void Game::MovePlayer(float adjust)
 {
 	mp_Player->Move(mp_Input, mp_Obstacles, m_Gravity, adjust);
+	mp_Player->SetGun(mp_Input);
 	if (mp_Input->MouseButtonHeld(MOUSE::LCLICK))
 	{
 		std::vector<Bullet*> newBullets = mp_Player->Shoot();
@@ -304,17 +305,17 @@ void Game::MoveBullets(float fpsAdjustment)
 		if (mp_Bullets[bulletCounter]->Move(mp_Blockers, fpsAdjustment)) mp_Bullets.erase(std::begin(mp_Bullets) + bulletCounter);
 		else
 		{
-			int targetHit = mp_Bullets[bulletCounter]->TargetCheck(mp_Enemies);
+			int targetHit;
+			bool destroyBullet = mp_Bullets[bulletCounter]->TargetCheck(mp_Enemies, &targetHit);
 			if (targetHit >= 0)
 			{
-				mp_Bullets.erase(std::begin(mp_Bullets) + bulletCounter); //Delete bullet registering collision
-				mp_Enemies[targetHit]->GetHit();
 				if (mp_Enemies[targetHit]->IsDead())
 				{
 					mp_Keys.push_back(mp_Enemies[targetHit]->SpawnKey());
 					mp_Enemies.erase(std::begin(mp_Enemies) + targetHit); //Delete enemy the bullet has hit
 				}
 			}
+			if (destroyBullet) mp_Bullets.erase(std::begin(mp_Bullets) + bulletCounter); //Delete bullet registering collision
 			else ++bulletCounter; //Allow bullets to be deleted mid-loop without out-indexing vector
 		}
 	}
@@ -378,8 +379,8 @@ void Game::Update()
 	{
 		mp_Window->Rainbow(adjust / m_BlockSize);
 		mp_Window->Clear();
-		mp_2DText->AddText(m_PauseText, 0, 0, .15, { 0, 0, 0, 1 }, true);
-		if (m_GameEnded) mp_2DText->AddText("PRESS-ENTER-TO-RESTART", 0, -.25, .05, { 0, 0, 0, 1 }, true);
+		mp_2DText->AddText(m_PauseText, 0, 0, .15, { 0, 0, 0, 1 }, Alignment::Centre);
+		if (m_GameEnded) mp_2DText->AddText("PRESS-ENTER-TO-RESTART", 0, -.25, .05, { 0, 0, 0, 1 }, Alignment::Centre);
 		mp_2DText->RenderText();
 		mp_Window->Present();
 
@@ -390,7 +391,7 @@ void Game::Update()
 
 void Game::Draw()
 {
-	XMMATRIX projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(90.0), mp_Window->Width() / mp_Window->Height(), 1.0, 1000.0);
+	XMMATRIX projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(mp_Player->GetProjectionAngle()), mp_Window->Width() / mp_Window->Height(), 1.0, 1000.0);
 
 	mp_Skybox->Draw(mp_Player->GetViewMatrix(), projection);
 

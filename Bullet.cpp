@@ -8,12 +8,14 @@ Bullet::Bullet(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager*
 	SetColour({ 0, 1.0f, 1.0f, 1.0f });
 }
 
-void Bullet::Shoot(XMVECTOR start, XMVECTOR target)
+void Bullet::Shoot(XMVECTOR start, XMVECTOR target, int damage, bool throughEnemies)
 {
 	m_Start = start;
 	SetPos(XMVectorGetX(start), XMVectorGetY(start), XMVectorGetZ(start));
 	XMVECTOR targetVec = target - start;
 	m_Direction = XMVector3Normalize(target - start);
+	m_Damage = damage;
+	m_ThroughEnemies = throughEnemies;
 }
 
 bool Bullet::Move(std::vector<GameObject*> Obstacles, float lagAdjust)
@@ -31,10 +33,16 @@ bool Bullet::Move(std::vector<GameObject*> Obstacles, float lagAdjust)
 	return d_sq > m_MaxDSq;
 }
 
-int Bullet::TargetCheck(std::vector<Enemy*> Enemies)
+bool Bullet::TargetCheck(std::vector<Enemy*> Enemies, int* index)
 {
+	*index = -1;
 	for (int e = 0; e < Enemies.size(); e++)
-		if (CheckCollision(Enemies[e]) || PassedThrough(Enemies[e])) return e;
-
-	return -1;
+	{
+		if (CheckCollision(Enemies[e]) || PassedThrough(Enemies[e]))
+		{
+			*index = e;
+			Enemies[e]->GetHit(m_Damage);
+		}
+	}
+	return *index != -1 && !m_ThroughEnemies;
 }

@@ -308,7 +308,7 @@ void GameObject::Fall(std::vector<GameObject*> obstacles, float grav, float adju
 		if (object == this) continue;
 		if (CheckCollision(object))
 		{
-			MoveToEdgeY(object, grav); // Add grav to prevent collision with floor when walking
+			MoveToEdgeY(object, grav, true); // Add grav to prevent collision with floor when walking
 			return;
 		}
 	}
@@ -368,9 +368,9 @@ void GameObject::MoveToEdgeX(GameObject* other, float offset)
 	m_x = other->GetX() + ((other->GetDimensions().x + GetDimensions().x) + offset) * xDir;
 }
 
-void GameObject::MoveToEdgeY(GameObject* other, float offset)
+void GameObject::MoveToEdgeY(GameObject* other, float offset, bool isGround)
 {
-	int yDir = (other->GetY() < m_y) ? 1 : -1;
+	int yDir = (other->GetY() < m_y || isGround) ? 1 : -1;
 	m_y = other->GetY() + ((other->GetDimensions().y + GetDimensions().y) + offset) * yDir;
 	m_Grounded = yDir == 1;
 	m_FallVel = m_Grounded ? 0 : max(m_FallVel, 0);

@@ -102,7 +102,7 @@ Text2D::Text2D(string filename, ID3D11Device* device, ID3D11DeviceContext* conte
 // add a string with position and size to the list
 // positions are from -1.0 to +1.0 for x and y, represents top left of string on screen
 // size is fraction of screen size
-void Text2D::AddText(string s, float x, float y, float size, XMFLOAT4 color, bool centred)
+void Text2D::AddText(string s, float x, float y, float size, XMFLOAT4 color, Alignment side)
 { 
 	string_2d temp; 
 	temp.s = s;
@@ -110,11 +110,8 @@ void Text2D::AddText(string s, float x, float y, float size, XMFLOAT4 color, boo
 	temp.y = y; 
 	temp.size = size; 
 	temp.color = color;
-	if (centred)
-	{
-		temp.x -= size * s.length() / 2.0f;
-		temp.y += size / 2.0f;
-	}
+	temp.x -= size * s.length() / 2.0f * (int)side;
+	temp.y += size / 2.0f;
 	s2d.push_back(temp); 
 }
 
@@ -187,7 +184,11 @@ void Text2D::RenderText(void)
 				texx = (c - '!') * 1.0f / 26.0f;;
 				//symbols to display can go here
 			}
-
+			else if (c == ' ')
+			{
+				texy = 3.0 / NUMLINES;
+				texx = 25.0f / 26.0f;;
+			}
 
 			vertices[current_char * 6].Color = tempc;
 			vertices[current_char * 6 + 1].Color = tempc;

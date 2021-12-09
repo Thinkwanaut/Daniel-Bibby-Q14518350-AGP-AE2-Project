@@ -27,6 +27,12 @@ struct VERTEX
 	XMFLOAT4 Color;
 };
 
+enum class Alignment
+{
+	Left,
+	Centre,
+	Right
+};
 // increase if more characters requird
 const int MAX_CHARACTERS = 10000;
 
@@ -59,7 +65,7 @@ public:
 	// add a string with position and size to the list
 	// positions are from -1.0 to +1.0 for x and y, represents top left of string on screen
 	// size is fraction of screen size
-	void AddText(string s, float x, float y, float size, XMFLOAT4 color, bool centred = false);
+	void AddText(string s, float x, float y, float size, XMFLOAT4 color, Alignment side = Alignment::Left);
 
 	// render all strings at once
 	void RenderText();

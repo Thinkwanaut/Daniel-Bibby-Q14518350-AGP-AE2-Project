@@ -83,7 +83,7 @@ void Input::ReadInputStates()
 
 bool Input::KeyHeld(KEYS key)
 {
-	return (m_keyboardKeyStates[KeyMap[key]] & 0x80) && (m_keyboardPrevKeyStates[KeyMap[key]] & 0x80);
+	return (m_keyboardKeyStates[KeyMap[key]] & 0x80); // && (m_keyboardPrevKeyStates[KeyMap[key]] & 0x80)
 }
 
 bool Input::KeyPressed(KEYS key)
@@ -98,7 +98,7 @@ bool Input::KeyReleased(KEYS key)
 
 bool Input::MouseButtonHeld(MOUSE button)
 {
-	return m_mouseState.rgbButtons[(unsigned char)button] && m_mousePrevState.rgbButtons[(unsigned char)button];
+	return m_mouseState.rgbButtons[(unsigned char)button]; // && m_mousePrevState.rgbButtons[(unsigned char)button]
 }
 
 bool Input::MouseButtonPressed(MOUSE button)
