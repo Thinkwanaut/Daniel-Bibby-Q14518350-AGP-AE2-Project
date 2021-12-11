@@ -20,7 +20,7 @@ void Enemy::Move(GameObject* target, std::vector<GameObject*> Obstacles, float l
 	LookAt(target->GetX(), target->GetY(), target->GetZ());
 	MoveForward(m_Speed, Obstacles, lagAdjust);
 
-	if (XMVector4Equal(m_AddedColour, m_FlashCol) && mp_Timer->GetTimer("Flash") > m_FlashTime) m_AddedColour = { 0, 0, 0, 0 };
+	if (mp_Timer->GetTimer("Flash") > m_FlashTime) m_AddedColour = { 0, 0, 0, 0 };
 }
 
 void Enemy::GetHit(int damage)

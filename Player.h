@@ -1,19 +1,10 @@
 #pragma once
-#include <d3d11.h>
-#include <math.h>
-#include <random>
-
-#define _XM_NO_INSTRINSICS_
-#define XM_NO_ALIGNMENT
-#include <DirectXMath.h>
-
 #include "GameObject.h"
 #include "Bullet.h"
 #include "Input.h"
 #include "Timer.h"
 #include "text2D.h"
 
-using namespace DirectX;
 enum class Collectable
 {
 	HEALTH, KEY
@@ -24,20 +15,21 @@ struct Gun
 	float ShotInterval{ 0.05f }, HipAccuracy{ 0.9f }, ZoomAccuracy{ 0.95f };
 	int Damage{ 1 }, ShotNum{ 1 };
 	bool ThroughEnemies{ false };
-	string Crosshair{ (char*)"(+)" };
+	string HipCrosshair{ (char*)"(  )" };
+	string ZoomCrosshair{ (char*)"(+)" };
 	float ZoomAngle{ 60 };
 };
 
 class Player : public GameObject
 {
 private:
-	float m_dx{ 0 }, m_dy{ 0 }, m_dz{ 0 }, m_CamRotX{ 0 }, m_CamRotY{ 0 }, m_AngleClamp{ 89.9f }, m_LookX{ 0 }, m_LookZ{ 0 };
+	float m_dx{ 0 }, m_dy{ 0 }, m_dz{ 1.0f }, m_CamRotX{ 0 }, m_CamRotY{ 0 }, m_AngleClamp{ 89.9f }, m_LookX{ 0 }, m_LookZ{ 1.0f };
 	float m_speed{ 0.05f }, m_JumpSpeed{ .25f }, m_Sprint{ 2.0 };
-	XMVECTOR m_position{}, m_lookAt{}, m_up{};
+	XMVECTOR m_position{ 0.0f, 0.0f, 0.0f, 0.0f }, m_lookAt{ 0.0f, 0.0f, 0.0f, 0.0f }, m_up{ 0.0f, 0.0f, 0.0f, 0.0f };
 	XMFLOAT3 m_HipOffset{ 2.0f, 3.0f, 3.0f }, m_ZoomOffset{ 0.5f, 1.5f, 3.0f };
 	XMFLOAT4 m_HealthColour{ 1.0f, 1.0f, 1.0f, 1.0f }, m_ScoreColour{ 1.0f, 1.0f, 1.0f, 1.0f };
 	float m_TargetDist{ 100 }, m_MaxHealth{ 10 }, m_Health{ 10 }, m_FlashTime{ 0.2f }, m_DefaultProjectionAngle{ 90.0f };
-	float m_ThrowVelX{ 0 }, m_ThrowVelZ{ 0 };
+	float m_ThrowVelX{ 0 }, m_ThrowVelZ{ 0 }, m_PullStrength{ 1.0f }, m_PullRangeSq{ 20000.0f };
 
 	bool m_Thrown{ false }, m_Zoomed{ false };
 
@@ -77,6 +69,7 @@ public:
 	int EnemyCheck(std::vector<Enemy*> enemies);
 	void GetHit();
 
+	void Magnet(std::vector<GameObject*> items, float adjust = 1.0f);
 	int CollectItem(std::vector<GameObject*> items, Collectable itemType);
 	bool Dead();
 	bool Won();
@@ -85,6 +78,8 @@ public:
 	XMMATRIX GetViewMatrix();
 	XMFLOAT3 GetPos();
 	XMFLOAT2 Normalise2D(XMFLOAT2 vector);
+	XMFLOAT3 Normalise3D(XMFLOAT3 vector);
+	XMFLOAT3 CrossProduct(XMFLOAT3 a, XMFLOAT3 b);
 
 	void ShowHUD(XMMATRIX projection, Light* ambient, DirectionalLight* directional = nullptr, PointLight* point = nullptr);
 };

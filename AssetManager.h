@@ -26,6 +26,8 @@ struct MODEL_BUFFER
 struct SKYBOX_BUFFER
 {
 	XMMATRIX WorldViewProjection;
+	XMVECTOR colour;
+	XMVECTOR light;
 };
 
 struct PARTICLE_BUFFER

@@ -42,6 +42,7 @@ public:
 	XMFLOAT3 GetCollisionPos();
 	XMFLOAT3 GetDimensions();
 	float GetSphereRad();
+	float GetDistanceSquared(GameObject* other);
 	BoundingBox GetBox();
 	BoundingSphere GetSphere();
 	ColliderShape GetCollisionType();
@@ -69,6 +70,7 @@ public:
 	void MoveForward_XZ(float step, std::vector<GameObject*> others, float adjust = 1);
 	void MoveForward(float step, float adjust = 1);
 	void MoveForward(float step, std::vector<GameObject*> others, float adjust = 1);
+	void MoveTowards(GameObject* target, float speed, float adjust);
 	void Fall(std::vector<GameObject*> obstacles, float grav = 1, float adjust = 1);
 	void SetFall(bool fall);
 	void GetPushed(std::vector<GameObject*> pushers, std::vector<GameObject*> obstacles);

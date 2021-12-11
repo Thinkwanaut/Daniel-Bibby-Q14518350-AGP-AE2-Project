@@ -9,7 +9,7 @@ private:
 
     XMVECTOR m_Direction{ 0, 0, 0 };
     XMFLOAT3 m_Start{ 0, 0, 0 };
-    float m_Speed{ .25f }, m_Size{ 0.5f }, m_MaxDSq{ 40000 };
+    float m_Speed{ 2.5f }, m_Size{ 0.5f }, m_MaxDSq{ 40000 };
     bool m_ThroughEnemies{ false };
     int m_Damage{ 1 };
 

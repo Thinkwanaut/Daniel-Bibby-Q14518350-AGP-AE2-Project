@@ -5,6 +5,8 @@ Skybox::Skybox(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager*
 {
 	CreateBuffer();
 	InitStates();
+
+	m_Tint = { 0.2f, 0.2f, 0.5f, 1.0f};
 }
 
 Skybox::~Skybox()
@@ -59,22 +61,22 @@ HRESULT Skybox::InitStates()
 	return S_OK;
 }
 
-void Skybox::UpdateConstantBuffer(XMMATRIX view, XMMATRIX projection)
+void Skybox::UpdateConstantBuffer(XMMATRIX view, XMMATRIX projection, Light* ambient)
 {
 	XMMATRIX world = GetWorldMatrix();
 	XMMATRIX transpose = XMMatrixTranspose(world);
 	SKYBOX_BUFFER cb{};
 
 	cb.WorldViewProjection = world * view * projection;
-	//cb.colour
-
+	cb.light = (ambient) ? ambient->Colour() : XMVECTOR({ 0.5f, 0.5f, 0.5f, 1 });
+	cb.colour = m_Tint;
 	mp_ImmediateContext->UpdateSubresource(mp_ConstantBuffer, 0, 0, &cb, 0, 0);
 }
 
-void Skybox::Draw(XMMATRIX view, XMMATRIX projection)
+void Skybox::Draw(XMMATRIX view, XMMATRIX projection, Light* ambient)
 {
 	SetContext();
-	UpdateConstantBuffer(view, projection);
+	UpdateConstantBuffer(view, projection, ambient);
 
 	UINT stride = sizeof(VERTEX_INFO);
 	UINT offset = 0;

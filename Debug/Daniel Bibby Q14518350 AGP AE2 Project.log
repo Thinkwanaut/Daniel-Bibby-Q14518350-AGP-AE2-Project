@@ -1,7 +1,13 @@
 ﻿  Player.cpp
   C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\dinput.h: DIRECTINPUT_VERSION undefined. Defaulting to version 0x0800
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(28,138): warning C4316: 'GameObject': object allocated on the heap may not be aligned 16
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(215,136): warning C4316: 'Bullet': object allocated on the heap may not be aligned 16
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(244,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(265,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(32,138): warning C4316: 'GameObject': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(156,12): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(157,12): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(158,12): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(160,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(161,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(218,136): warning C4316: 'Bullet': object allocated on the heap may not be aligned 16
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(247,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(271,12): warning C4804: '<': unsafe use of type 'bool' in operation
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(277,20): warning C4018: '<': signed/unsigned mismatch
   Daniel Bibby Q14518350 AGP AE2 Project.vcxproj -> C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Debug\Daniel Bibby Q14518350 AGP AE2 Project.exe

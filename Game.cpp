@@ -136,7 +136,6 @@ void Game::CreateLevel()
 
 			if (m_Layout[row][column] != '.')
 			{
-
 				//Create all objects in game based on text file loaded externally
 				switch (std::toupper(m_Layout[row][column]))
 				{
@@ -373,7 +372,6 @@ void Game::Update()
 		for (GameObject* s : mp_Spikes) s->Fall(mp_Obstacles, m_Gravity, adjust);
 		XMFLOAT3 camPos = mp_Player->GetPos();
 		mp_Skybox->SetPos(camPos.x, camPos.y + m_SkyOffset, camPos.z);
-
 
 		Draw();
 	}

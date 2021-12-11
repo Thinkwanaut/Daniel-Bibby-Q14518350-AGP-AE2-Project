@@ -75,7 +75,6 @@ HRESULT Window::Resize(int width, int height)
 	//Automatically choose the width/height to match client rect for HWNDs
 	HRESULT hr;
 	hr = mp_SwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
-
 	if (FAILED(hr)) return hr;
 
 	hr = InitialiseViewport(width, height);

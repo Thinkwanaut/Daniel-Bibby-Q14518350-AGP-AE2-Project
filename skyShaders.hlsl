@@ -11,6 +11,8 @@ struct VOut
 cbuffer CBuffer0
 {
 	matrix WVPMatrix;
+	float4 colour;
+	float4 light;
 };
 
 VOut VShader(float4 position : POSITION, float3 texcoord : TEXCOORD)
@@ -19,7 +21,7 @@ VOut VShader(float4 position : POSITION, float3 texcoord : TEXCOORD)
 
 	output.texcoord = position.xyz;
 	output.position = mul(WVPMatrix, position);
-	output.colour = float4 (1, 1, 1, 1);
+	output.colour = colour + light;
 
 	return output;
 }

@@ -129,8 +129,7 @@ bool GameObject::CheckCollisionZ(GameObject* other)
 
 bool GameObject::CheckCollisionSphere(GameObject* other)
 {
-	float d_sq = powf(GetX() - other->GetX(), 2) + powf(GetY() - other->GetY(), 2) + powf(GetZ() - other->GetZ(), 2);
-	return (d_sq <= powf(GetDimensions().x + other->GetDimensions().x, 2));
+	return GetDistanceSquared(other) <= powf(GetDimensions().x + other->GetDimensions().x, 2);
 }
 
 bool GameObject::PassedThrough(GameObject* target)
@@ -196,6 +195,11 @@ float GameObject::GetSphereRad()
 		maxRad = max(maxRad, rad);
 	}
 	return maxRad;
+}
+
+float GameObject::GetDistanceSquared(GameObject* other)
+{
+	return powf(GetX() - other->GetX(), 2) + powf(GetY() - other->GetY(), 2) + powf(GetZ() - other->GetZ(), 2);
 }
 
 BoundingBox GameObject::GetBox()
@@ -301,6 +305,14 @@ void GameObject::MoveForward(float step, std::vector<GameObject*> others, float 
 		if (CheckCollision(o)) MoveToEdgeZ(o);
 }
 
+void GameObject::MoveTowards(GameObject* target, float speed, float adjust)
+{
+	XMVECTOR direction = XMVector3Normalize({ m_x - target->GetX(), m_y - target->GetY(), m_z - target->GetZ() });
+	m_x += XMVectorGetX(direction) * speed * adjust;
+	m_y += XMVectorGetY(direction) * speed * adjust;
+	m_z += XMVectorGetZ(direction) * speed * adjust;
+}
+
 void GameObject::Fall(std::vector<GameObject*> obstacles, float grav, float adjust)
 {
 	if (!m_Falls) return;
@@ -314,7 +326,7 @@ void GameObject::Fall(std::vector<GameObject*> obstacles, float grav, float adju
 		if (object == this) continue;
 		if (CheckCollision(object))
 		{
-			MoveToEdgeY(object, grav, true); // Add grav to prevent collision with floor when walking
+			MoveToEdgeY(object, grav * adjust, true); // Add grav offset to prevent collision with floor when walking
 			return;
 		}
 	}

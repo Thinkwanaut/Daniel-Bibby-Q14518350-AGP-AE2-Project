@@ -80,7 +80,7 @@ public:
 	HRESULT CreateBuffer();
 	HRESULT InitStates();
 
-	void UpdateConstantBuffer(XMMATRIX view, XMMATRIX projection);
-	void Draw(XMMATRIX view, XMMATRIX projection);
+	void UpdateConstantBuffer(XMMATRIX view, XMMATRIX projection, Light* ambient = nullptr);
+	void Draw(XMMATRIX view, XMMATRIX projection, Light* ambient = nullptr);
 };
 

@@ -67,7 +67,7 @@ private:
 
 	Skybox* mp_Skybox = nullptr;
 
-	float m_BlockSize{ 10 }, m_FloorHeight{ -10 }, m_ObjectHeight{ 0 }, m_Gravity{ 0.001f }, m_SkyOffset{ 1 }, m_EnemyInterval{ 1.0f };
+	float m_BlockSize{ 10 }, m_FloorHeight{ -10 }, m_ObjectHeight{ 0 }, m_Gravity{ 0.001f }, m_SkyOffset{ 1 }, m_EnemyInterval{ 10.0f };
 
 	bool m_SingleFloor{ true }, m_Paused{ false }, m_GameEnded{ false };
 
