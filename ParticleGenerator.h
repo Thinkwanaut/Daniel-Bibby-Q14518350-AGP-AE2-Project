@@ -53,7 +53,7 @@ private:
 	XMFLOAT3 m_BaseVelocity{ 0.0f, 0.1f, 0.0f };
 	XMFLOAT3 m_Acceleration{ .999f, .999f, .999f }; // *
 
-	float m_ColRand{ 1.f }; // *
+	float m_ColRand{ 0.f }; // *
 	float m_SizeRand{ .0f }; // *
 	float m_VelRand{ 0.1f }; // +
 
@@ -67,6 +67,7 @@ public:
 	void SetActive(bool active, bool clearActive = false);
 
 	void SetNumber(int num);
+	void SetInterval(float interval);
 	void SetLifetime(float life);
 	void SetSize(float x, float y, float z, float rand = 0.0f);
 	void SetSize(XMFLOAT3 size, float rand = 0.0f);

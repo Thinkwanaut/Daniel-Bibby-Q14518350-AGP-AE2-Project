@@ -133,6 +133,11 @@ void ParticleGenerator::SetVelocity(XMFLOAT3 vel, float rand)
 	m_BaseVelocity = vel;
 }
 
+void ParticleGenerator::SetInterval(float interval)
+{
+	m_Interval = interval;
+}
+
 void ParticleGenerator::SetAcceleration(float x, float y, float z)
 {
 	m_Acceleration = { x, y, z };
@@ -218,13 +223,13 @@ void ParticleGenerator::UpdateConstantBuffer(Particle* particle, XMMATRIX view, 
 
 	PARTICLE_BUFFER cb{};
 	cb.WorldViewProjection = world * view * projection;
-	if (particle->Col.size() > 1)
+	int currentColour = floorf(min(mp_Timer->GetTimer(std::to_string(particle->ID)) / m_LifeTime, 1) * (m_Colours.size() - 1));
+	if (currentColour + 1 < particle->Col.size())
 	{
-		int currentColour = floorf(mp_Timer->GetTimer(std::to_string(particle->ID)) / m_LifeTime * m_Colours.size());
-		float colourTimer = fmodf(mp_Timer->GetTimer(std::to_string(particle->ID)) / m_LifeTime * m_Colours.size(), 1.0f);
+		float colourTimer = fmodf(mp_Timer->GetTimer(std::to_string(particle->ID)) / m_LifeTime * (m_Colours.size() - 1), 1.0f);
 		cb.colour = Lerp4(particle->Col[currentColour], particle->Col[currentColour + 1], colourTimer);
 	}
-	else cb.colour = particle->Col[0];
+	else cb.colour = particle->Col[currentColour];
 
 
 	mp_ImmediateContext->UpdateSubresource(mp_ConstantBuffer, 0, 0, &cb, 0, 0);

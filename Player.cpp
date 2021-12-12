@@ -227,6 +227,7 @@ std::vector<Bullet*> Player::Shoot(float gap)
 			XMFLOAT3 bullPos = { m_LookX * mp_GunModel->GetScale().z + mp_GunModel->GetPos().x, m_dy * mp_GunModel->GetScale().z + mp_GunModel->GetPos().y, m_LookZ * mp_GunModel->GetScale().z + mp_GunModel->GetPos().z };
 			newBullets.push_back(new Bullet(mp_D3DDevice, mp_ImmediateContext, mp_Assets, m_BulletModel, m_BulletTexture, (char*)"shaders.hlsl"));
 			newBullets[s]->Shoot(bullPos, gunTarget, m_Guns[m_GunIndex].BulletSpeed, m_Guns[m_GunIndex].Damage, m_Guns[m_GunIndex].Range, m_Guns[m_GunIndex].ThroughEnemies);
+			//newBullets[s]->MoveForward(m_Guns[m_GunIndex].BulletSpeed, RandomRange(0, gap)); // Offset startpos slightly
 		}
 
 		mp_Timer->StartTimer("Shoot" + std::to_string(m_GunIndex));

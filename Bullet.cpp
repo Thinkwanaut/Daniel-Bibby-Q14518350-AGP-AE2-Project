@@ -14,6 +14,7 @@ void Bullet::Shoot(XMFLOAT3 start, XMFLOAT3 target, float speed, int damage, flo
 	SetPos(start.x, start.y, start.z);
 	XMVECTOR targetVec = XMVectorSet(target.x - start.x, target.y - start.y, target.z - start.z, 0.0f);
 	m_Direction = XMVector3Normalize(targetVec);
+	LookAtRelative(XMVectorGetX(m_Direction), XMVectorGetY(m_Direction), XMVectorGetZ(m_Direction));
 	m_Speed = speed;
 	m_MaxDSq = powf(range, 2.0f);
 	m_Damage = damage;
@@ -22,9 +23,7 @@ void Bullet::Shoot(XMFLOAT3 start, XMFLOAT3 target, float speed, int damage, flo
 
 bool Bullet::Move(std::vector<GameObject*> Obstacles, float lagAdjust)
 {
-	m_x += XMVectorGetX(m_Direction) * m_Speed * lagAdjust;
-	m_y += XMVectorGetY(m_Direction) * m_Speed * lagAdjust;
-	m_z += XMVectorGetZ(m_Direction) * m_Speed * lagAdjust;
+	MoveForward(m_Speed, lagAdjust);
 
 	for (GameObject* o : Obstacles)
 		if (CheckCollision(o)) return true;

@@ -259,15 +259,16 @@ void GameObject::SetCollisionType(ColliderShape shape)
 void GameObject::MakeParticles()
 {
 	mp_Particles = new ParticleGenerator(mp_D3DDevice, mp_ImmediateContext, mp_Assets, (char*)"BoxTexture.bmp", (char*)"particleShaders.hlsl");
-	mp_Particles->SetColour({ 1.f, 1.f, 1.f, 1.0f });
-	//mp_Particles->AddColour({ 1.0f, 1.0f, 0.0f, 1.0f });
-	//mp_Particles->AddColour({ 0.0f, 1.0f, 0.0f, 1.0f });
-	//mp_Particles->AddColour({ 0.0f, 1.0f, 1.0f, 1.0f });
-	//mp_Particles->AddColour({ 0.0f, 0.0f, 1.0f, 1.0f });
-	//mp_Particles->AddColour({ 1.0f, 0.0f, 1.0f, 1.0f });
+	mp_Particles->SetColour({ 1.f, 0.f, 0.f, 1.0f });
+	mp_Particles->AddColour({ 1.0f, 1.0f, 0.0f, 1.0f });
+	mp_Particles->AddColour({ 0.0f, 1.0f, 0.0f, 1.0f });
+	mp_Particles->AddColour({ 0.0f, 1.0f, 1.0f, 1.0f });
+	mp_Particles->AddColour({ 0.0f, 0.0f, 1.0f, 1.0f });
+	mp_Particles->AddColour({ 1.0f, 0.0f, 1.0f, 1.0f });
 	mp_Particles->SetSize({ 1.0f, 1.0f, 1.0f });
 	mp_Particles->SetNumber(100);
-	mp_Particles->SetLifetime(.5f);
+	mp_Particles->SetInterval(0.01);
+	mp_Particles->SetLifetime(1.f);
 }
 
 void GameObject::SetParticles(bool active, bool clearActive)

@@ -344,7 +344,6 @@ XMMATRIX Game::XYZRotation(float x, float y, float z)
 
 void Game::SpawnEnemies()
 {
-	return;
 	for (GameObject* spawn : mp_Spawns)
 	{
 		int index = mp_Enemies.size();
