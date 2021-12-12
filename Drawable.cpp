@@ -51,6 +51,19 @@ void Drawable::AddColour(XMVECTOR colour)
 	m_AddedColour = colour;
 }
 
+void Drawable::LookAt_XZ(float x, float z)
+{
+	float dx = x - m_x;
+	float dz = z - m_z;
+	m_yRot = XMConvertToDegrees(atan2f(dx, dz));
+}
+
+void Drawable::LookAt(float x, float y, float z)
+{
+	LookAt_XZ(x, z);
+	m_xRot = XMConvertToDegrees(-atan2f(y - m_y, powf(powf(x - m_x, 2) + powf(z - m_z, 2), 0.5f)));
+}
+
 XMMATRIX Drawable::GetWorldMatrix()
 {
 	XMMATRIX scale, rotation, translation;

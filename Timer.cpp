@@ -9,13 +9,21 @@ Timer::Timer()
 }
 
 // Get frame time and return lag multiplier based on target framerate
-float Timer::Tick()
+float Timer::TickFPS()
 {
 	__int64 frameEnd;
 	QueryPerformanceCounter((LARGE_INTEGER*)&frameEnd);
 	float gap = (frameEnd - m_FrameStart) * m_SecondsPerCount;
 	m_FrameStart = frameEnd;
 	return m_TargetFps / (1.0f / gap);
+}
+
+// Get frame time and return time between frames
+float Timer::Gap()
+{
+	__int64 frameEnd;
+	QueryPerformanceCounter((LARGE_INTEGER*)&frameEnd);
+	return (frameEnd - m_FrameStart) * m_SecondsPerCount;
 }
 
 void Timer::StartTimer(std::string name)

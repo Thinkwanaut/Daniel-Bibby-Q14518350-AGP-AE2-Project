@@ -15,7 +15,8 @@ private:
 public:
 	Timer();
 
-	float Tick();
+	float TickFPS();
+	float Gap();
 	void StartTimer(std::string name);
 	float GetTimer(std::string name);
 };

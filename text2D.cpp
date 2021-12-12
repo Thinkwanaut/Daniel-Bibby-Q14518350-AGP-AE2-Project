@@ -155,7 +155,7 @@ void Text2D::RenderText(void)
 			vertices[current_char * 6 + 5].Pos.z = 1.0;
 		
 			// this code assumes 26 characters across and 4 lines in texture, containing lower, upper, number, symbols
-			const int NUMLINES = 4;
+			const int NUMLINES = 7;
 
 			char c = s2d[i].s[j]; //  get current character
 			
@@ -178,16 +178,26 @@ void Text2D::RenderText(void)
 				texy = 2.0 / NUMLINES; // third line
 				texx = (c - '0') * 1.0f / 26.0f;
 			}
-			else if (c >= '!' && c <= '/')
+			else if (c >= ' ' && c <= '/')
 			{
 				texy = 3.0 / NUMLINES;
-				texx = (c - '!') * 1.0f / 26.0f;;
+				texx = (c - ' ') * 1.0f / 26.0f;
 				//symbols to display can go here
 			}
-			else if (c == ' ')
+			else if (c >= ':' && c <= '@')
 			{
-				texy = 3.0 / NUMLINES;
-				texx = 25.0f / 26.0f;;
+				texy = 4.0 / NUMLINES;
+				texx = (c - ':') * 1.0f / 26.0f;
+			}
+			else if (c >= '[' && c <= '`')
+			{
+				texy = 5.0 / NUMLINES;
+				texx = (c - '[') * 1.0f / 26.0f;
+			}
+			else if (c >= '{' && c <= '~')
+			{
+				texy = 6.0 / NUMLINES;
+				texx = (c - '{') * 1.0f / 26.0f;
 			}
 
 			vertices[current_char * 6].Color = tempc;

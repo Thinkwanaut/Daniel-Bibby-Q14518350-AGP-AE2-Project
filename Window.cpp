@@ -73,8 +73,7 @@ HRESULT Window::Resize(int width, int height)
 
 	//Preserve existing buffer count/format
 	//Automatically choose the width/height to match client rect for HWNDs
-	HRESULT hr;
-	hr = mp_SwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+	HRESULT hr = mp_SwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
 	if (FAILED(hr)) return hr;
 
 	hr = InitialiseViewport(width, height);
@@ -142,7 +141,7 @@ void Window::Clear()
 
 void Window::Clear(float r, float g, float b)
 {
-	float colour[4] = { r, g, b, 1 };
+	float colour[4] = { r, g, b, 1.0f };
 	mp_ImmediateContext->ClearRenderTargetView(mp_BackBufferRTView, colour);
 }
 

@@ -5,8 +5,8 @@
 #include <DirectXMath.h>
 
 #include "Drawable.h"
-
 #include "objfilemodel.h"
+#include "ParticleGenerator.h"
 
 enum class ColliderShape
 {
@@ -33,6 +33,8 @@ protected:
 
 	float m_FallVel{ 0 };
 	bool m_Grounded{ false }, m_Falls{ true };
+
+	ParticleGenerator* mp_Particles = nullptr;
 
 public:
 	GameObject(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager* assets, char* model, char* texture, char* shader);
@@ -64,14 +66,15 @@ public:
 	float GetPrevZ();
 	
 	void SetCollisionType(ColliderShape shape);
-	void LookAt_XZ(float x, float z);
-	void LookAt(float x, float y, float z);
+	void MakeParticles();
+	void SetParticles(bool active, bool clearActive = false);
+	void UpdateParticles(XMMATRIX view, XMMATRIX projection, XMFLOAT3 camPos, float adjust = 1.0f);
 	void LookAtRelative(float x, float y, float z);
-	void MoveForward_XZ(float step, std::vector<GameObject*> others, float adjust = 1);
+	void MoveForward_XZ(float step, std::vector<GameObject*> others, float adjust = 1.0f);
 	void MoveForward(float step, float adjust = 1);
-	void MoveForward(float step, std::vector<GameObject*> others, float adjust = 1);
+	void MoveForward(float step, std::vector<GameObject*> others, float adjust = 1.0f);
 	void MoveTowards(GameObject* target, float speed, float adjust);
-	void Fall(std::vector<GameObject*> obstacles, float grav = 1, float adjust = 1);
+	void Fall(std::vector<GameObject*> obstacles, float floorHeight, float grav = 1.0f, float adjust = 1.0f);
 	void SetFall(bool fall);
 	void GetPushed(std::vector<GameObject*> pushers, std::vector<GameObject*> obstacles);
 	void MoveToEdgeX(GameObject* other, float offset = 0);

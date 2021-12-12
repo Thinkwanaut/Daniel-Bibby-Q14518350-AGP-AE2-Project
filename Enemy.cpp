@@ -40,7 +40,7 @@ GameObject* Enemy::SpawnKey()
 	GameObject* newKey = new GameObject(mp_D3DDevice, mp_ImmediateContext, mp_Assets, m_KeyModel, m_KeyTexture, (char*)"shaders.hlsl");
 	newKey->SetCollisionType(ColliderShape::Box);
 	newKey->SetPos(GetPos());
-	newKey->SetScale(3.0f, 3.0f, 3.0f);
+	newKey->SetScale(m_KeySize, m_KeySize, m_KeySize);
 	newKey->SetRot(0.0f, m_yRot, m_zRot);
 	newKey->SetColour({ 1, 1, 0, 1 });
 	return newKey;

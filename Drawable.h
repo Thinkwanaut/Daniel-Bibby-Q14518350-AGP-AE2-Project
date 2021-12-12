@@ -56,6 +56,9 @@ public:
 
 	void AddColour(XMVECTOR colour);
 
+	void LookAt_XZ(float x, float z);
+	void LookAt(float x, float y, float z);
+
 	void SetContext();
 };
 

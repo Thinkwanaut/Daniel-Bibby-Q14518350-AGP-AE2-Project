@@ -256,17 +256,34 @@ void GameObject::SetCollisionType(ColliderShape shape)
 	m_collisionType = shape;
 }
 
-void GameObject::LookAt_XZ(float x, float z)
+void GameObject::MakeParticles()
 {
-	float dx = x - m_x;
-	float dz = z - m_z;
-	m_yRot = XMConvertToDegrees(atan2f(dx, dz));
+	mp_Particles = new ParticleGenerator(mp_D3DDevice, mp_ImmediateContext, mp_Assets, (char*)"BoxTexture.bmp", (char*)"particleShaders.hlsl");
+	mp_Particles->SetColour({ 1.f, 1.f, 1.f, 1.0f });
+	//mp_Particles->AddColour({ 1.0f, 1.0f, 0.0f, 1.0f });
+	//mp_Particles->AddColour({ 0.0f, 1.0f, 0.0f, 1.0f });
+	//mp_Particles->AddColour({ 0.0f, 1.0f, 1.0f, 1.0f });
+	//mp_Particles->AddColour({ 0.0f, 0.0f, 1.0f, 1.0f });
+	//mp_Particles->AddColour({ 1.0f, 0.0f, 1.0f, 1.0f });
+	mp_Particles->SetSize({ 1.0f, 1.0f, 1.0f });
+	mp_Particles->SetNumber(100);
+	mp_Particles->SetLifetime(.5f);
 }
 
-void GameObject::LookAt(float x, float y, float z)
+void GameObject::SetParticles(bool active, bool clearActive)
 {
-	LookAt_XZ(x, z);
-	m_xRot = XMConvertToDegrees(-atan2f(y - m_y, powf(powf(x - m_x, 2) + powf(z - m_z, 2), 0.5f)));
+	mp_Particles->SetActive(active, clearActive);
+}
+
+void GameObject::UpdateParticles(XMMATRIX view, XMMATRIX projection, XMFLOAT3 camPos, float adjust)
+{
+	if (mp_Particles)
+	{
+		mp_Particles->SetPos(m_x, m_y, m_z);
+		mp_Particles->SetScale(m_xScale, m_yScale, m_zScale);
+		mp_Particles->UpdateParticles(adjust);
+		mp_Particles->Draw(view, projection, camPos);
+	}
 }
 
 void GameObject::LookAtRelative(float x, float y, float z)
@@ -307,18 +324,18 @@ void GameObject::MoveForward(float step, std::vector<GameObject*> others, float 
 
 void GameObject::MoveTowards(GameObject* target, float speed, float adjust)
 {
-	XMVECTOR direction = XMVector3Normalize({ m_x - target->GetX(), m_y - target->GetY(), m_z - target->GetZ() });
+	XMVECTOR direction = XMVector3Normalize({ target->GetX() - m_x, target->GetY() - m_y, target->GetZ() - m_z });
 	m_x += XMVectorGetX(direction) * speed * adjust;
 	m_y += XMVectorGetY(direction) * speed * adjust;
 	m_z += XMVectorGetZ(direction) * speed * adjust;
 }
 
-void GameObject::Fall(std::vector<GameObject*> obstacles, float grav, float adjust)
+void GameObject::Fall(std::vector<GameObject*> obstacles, float floorHeight, float grav, float adjust)
 {
 	if (!m_Falls) return;
 
 	m_FallVel += grav * adjust;
-	m_y -= m_FallVel * adjust;
+	m_y = max(m_y - m_FallVel * adjust, floorHeight);
 
 	m_Grounded = false;
 	for (GameObject* object : obstacles)
@@ -436,6 +453,5 @@ void GameObject::Draw(XMMATRIX view, XMMATRIX projection, Light* ambient, Direct
 	SetContext();
 	UpdateConstantBuffer(view, projection, ambient, directional, point);
 	mp_Object->Draw();
-
 	m_PrevX = m_x; m_PrevY = m_y; m_PrevZ = m_z;
 }

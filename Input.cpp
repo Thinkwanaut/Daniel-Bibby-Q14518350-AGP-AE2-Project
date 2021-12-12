@@ -81,6 +81,15 @@ void Input::ReadInputStates()
 	if (hr == DIERR_INPUTLOST || hr == DIERR_NOTACQUIRED) mp_MouseDevice->Acquire();
 }
 
+bool Input::AnyPressed()
+{
+	for (int k = 0; k < NUM_KEYS; k++)
+		if ((m_keyboardKeyStates[(unsigned char)k] & 0x80) && !(m_keyboardPrevKeyStates[(unsigned char)k] & 0x80)) return true;
+	for (int m = 0; m < (int)MOUSE::BUTTONS; m++)
+		if (MouseButtonPressed((MOUSE)m)) return true;
+	return false;
+}
+
 bool Input::KeyHeld(KEYS key)
 {
 	return (m_keyboardKeyStates[KeyMap[key]] & 0x80); // && (m_keyboardPrevKeyStates[KeyMap[key]] & 0x80)

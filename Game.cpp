@@ -21,7 +21,7 @@ Game::Game(_In_ HINSTANCE hInstance, _In_ int nCmdShow, Window* window)
 	mp_2DText = new Text2D("Assets/myFont.png", mp_Window->Device(), mp_Window->Context());
 
 	SetLayout();
-	CreateLevel();
+	//CreateLevel();
 }
 
 Game::~Game()
@@ -153,6 +153,7 @@ void Game::CreateLevel()
 					mp_Spikes[index]->SetPos(x, (m_SingleFloor) ? m_ObjectHeight : m_FloorHeight, z);
 					mp_Spikes[index]->SetScale(m_BlockSize / 2.0f, m_BlockSize / 4.0f, m_BlockSize / 2.0f);
 					mp_Spikes[index]->SetCollisionType(ColliderShape::Box);
+					mp_Spikes[index]->MakeParticles();
 					floorHeight -= m_BlockSize;
 					break;
 
@@ -236,9 +237,9 @@ void Game::CreateLevel()
 	mp_Skybox = new Skybox(mp_Window->Device(), mp_Window->Context(), mp_Assets, SKY_FILE, (char*)"skyShaders.hlsl");
 	mp_Skybox->SetScale(3, 3, 3);
 
-	m_GameEnded = false;
+	m_State = GameStates::PLAY;
 
-	mp_Timer->Tick();
+	mp_Timer->TickFPS();
 	SpawnEnemies();
 }
 
@@ -260,13 +261,18 @@ int Game::Run()
 	return (int)msg.wParam;
 }
 
-void Game::MovePlayer(float adjust)
+bool Game::InGame()
 {
-	mp_Player->Move(mp_Input, mp_Obstacles, m_Gravity, adjust);
+	return m_State == GameStates::PLAY || m_State == GameStates::PAUSE;
+}
+
+void Game::MovePlayer()
+{
+	mp_Player->Move(mp_Input, mp_Obstacles, m_FloorHeight, m_Gravity, m_SpeedAdjust);
 	mp_Player->SetGun(mp_Input);
 	if (mp_Input->MouseButtonHeld(MOUSE::LCLICK))
 	{
-		std::vector<Bullet*> newBullets = mp_Player->Shoot();
+		std::vector<Bullet*> newBullets = mp_Player->Shoot(m_FrameGap);
 		mp_Bullets.insert(mp_Bullets.begin(), newBullets.begin(), newBullets.end());
 	}
 	int enemyHit = mp_Player->EnemyCheck(mp_Enemies);
@@ -275,33 +281,21 @@ void Game::MovePlayer(float adjust)
 	int healthpackHit = mp_Player->CollectItem(mp_HealthPacks, Collectable::HEALTH);
 	if (healthpackHit >= 0) mp_HealthPacks.erase(std::begin(mp_HealthPacks) + healthpackHit);
 
+	mp_Player->Magnet(mp_Keys, m_SpeedAdjust);
 	int keyHit = mp_Player->CollectItem(mp_Keys, Collectable::KEY);
 	if (keyHit >= 0) mp_Keys.erase(std::begin(mp_Keys) + keyHit);
 
 	mp_Player->SpikeCheck(mp_Spikes);
 
 	//mp_PLight->SetPosition({ mp_Player->GetX(), mp_Player->GetY(), mp_Player->GetZ() });
-
-	if (mp_Player->Dead())
-	{
-		m_GameEnded = true;
-		m_PauseText = "DEFEAT";
-	}
-
-	else if (mp_Player->Won())
-	{
-		m_GameEnded = true;
-		m_PauseText = "VICTORY";
-	}
-
 }
 
-void Game::MoveBullets(float fpsAdjustment)
+void Game::MoveBullets()
 {
 	int bulletCounter = 0;
 	while (bulletCounter != mp_Bullets.size())
 	{
-		if (mp_Bullets[bulletCounter]->Move(mp_Blockers, fpsAdjustment)) mp_Bullets.erase(std::begin(mp_Bullets) + bulletCounter);
+		if (mp_Bullets[bulletCounter]->Move(mp_Blockers, m_SpeedAdjust)) mp_Bullets.erase(std::begin(mp_Bullets) + bulletCounter);
 		else
 		{
 			int targetHit;
@@ -320,6 +314,25 @@ void Game::MoveBullets(float fpsAdjustment)
 	}
 }
 
+void Game::ScoreSpikes()
+{
+	int spikeScore = 0;
+	for (GameObject* s : mp_Spikes)
+	{
+		for (GameObject* m : mp_Movables)
+		{
+			if (s->CheckCollision(m))
+			{
+				spikeScore++;
+				s->SetParticles(false, true);
+				break;
+			}
+		}
+		s->Fall(mp_Obstacles, m_FloorHeight - m_BlockSize, m_Gravity, m_SpeedAdjust);
+	}
+	mp_Player->SetSpikeScore(spikeScore, mp_Spikes.size());
+}
+
 XMMATRIX Game::XYZRotation(float x, float y, float z)
 {
 	XMMATRIX xMatrix, yMatrix, zMatrix;
@@ -331,6 +344,7 @@ XMMATRIX Game::XYZRotation(float x, float y, float z)
 
 void Game::SpawnEnemies()
 {
+	return;
 	for (GameObject* spawn : mp_Spawns)
 	{
 		int index = mp_Enemies.size();
@@ -343,50 +357,68 @@ void Game::SpawnEnemies()
 
 void Game::Update()
 {
-	if (mp_Window->Resized()) mp_Timer->Tick();
-	float adjust = mp_Timer->Tick() * m_BlockSize;
+	if (mp_Window->Resized()) mp_Timer->TickFPS();
+	m_FrameGap = mp_Timer->Gap();
+	m_SpeedAdjust = mp_Timer->TickFPS() * m_BlockSize;
 	mp_Input->ReadInputStates();
 	mp_Window->ResetContext();
 
-	if (mp_Input->KeyPressed(KEYS::P) && !m_GameEnded)
+	switch(m_State)
 	{
-		m_Paused = !m_Paused;
-		m_PauseText = "PAUSED-(P)";
-	}
-
-	if (!m_Paused && !m_GameEnded)
-	{
-		mp_DLight->Rotate({ 0, adjust / m_BlockSize, 0 });
+	case GameStates::PLAY:
+		mp_DLight->Rotate({ 0, m_SpeedAdjust / m_BlockSize, 0 });
 
 		if (mp_Timer->GetTimer("Spawn") >= m_EnemyInterval)	SpawnEnemies();
-		MovePlayer(adjust);
-		MoveBullets(adjust);
+		MovePlayer();
+		MoveBullets();
 		for (GameObject* m : mp_Movables)
 		{
-			m->Fall(mp_Obstacles, m_Gravity, adjust);
+			m->Fall(mp_Obstacles, m_FloorHeight - m_BlockSize, m_Gravity, m_SpeedAdjust);
 			m->GetPushed(mp_Pushers, mp_Obstacles);
 		}
-		for (Enemy* e : mp_Enemies) e->Move(mp_Player, mp_Blockers, adjust);
-		for (GameObject* h : mp_HealthPacks) h->Fall(mp_Obstacles, m_Gravity, adjust);
-		for (GameObject* k : mp_Keys) k->Fall(mp_Obstacles, m_Gravity, adjust);
-		for (GameObject* s : mp_Spikes) s->Fall(mp_Obstacles, m_Gravity, adjust);
+		for (Enemy* e : mp_Enemies) e->Move(mp_Player, mp_Blockers, m_SpeedAdjust);
+		for (GameObject* h : mp_HealthPacks) h->Fall(mp_Obstacles, m_FloorHeight - m_BlockSize, m_Gravity, m_SpeedAdjust);
+		for (GameObject* k : mp_Keys) k->Fall(mp_Obstacles, m_FloorHeight - m_BlockSize, m_Gravity, m_SpeedAdjust);
+
+		ScoreSpikes();
+
 		XMFLOAT3 camPos = mp_Player->GetPos();
 		mp_Skybox->SetPos(camPos.x, camPos.y + m_SkyOffset, camPos.z);
-
 		Draw();
+		if (mp_Player->Dead() || mp_Player->Won()) m_State = GameStates::END;
+		else if (mp_Input->KeyPressed(KEYS::P)) m_State = GameStates::PAUSE;
+		break;
+
+	case GameStates::PAUSE:
+		mp_2DText->AddText("PAUSED", 0, 0, .15, { 0, 0, 0, 1 }, Alignment::Centre);
+		mp_2DText->AddText("PRESS-P-TO-RESUME", 0, -.25, .05, { 0, 0, 0, 1 }, Alignment::Centre);
+		if (mp_Input->KeyPressed(KEYS::P)) m_State = GameStates::PLAY;
+		break;
+
+	case GameStates::END:
+		mp_2DText->AddText(mp_Player->Won() ? "VICTORY" : "DEFEAT", 0, 0, .15, {0, 0, 0, 1}, Alignment::Centre);
+		mp_2DText->AddText("PRESS-ANY-KEY-TO-REPLAY", 0, -.25, .05, { 0, 0, 0, 1 }, Alignment::Centre);
+		break;
+
+	case GameStates::MENU:
+		mp_2DText->AddText("AE2", 0, 0, .15, { 0, 0, 0, 1 }, Alignment::Centre);
+		mp_2DText->AddText("PRESS-ANY-KEY-TO-PLAY", 0, -.25, .05, { 0, 0, 0, 1 }, Alignment::Centre);
+		mp_2DText->AddText("W/A/S/D -     MOVE", -0.95, 0.9, 0.035, { 0, 0, 0, 1 });
+		mp_2DText->AddText("SHIFT   -   SPRINT", -0.95, 0.83, 0.035, { 0, 0, 0, 1 });
+		mp_2DText->AddText("L-CLICK -    SHOOT", -0.95, 0.76, 0.035, { 0, 0, 0, 1 });
+		mp_2DText->AddText("R-CLICK -     ZOOM", -0.95, 0.69, 0.035, { 0, 0, 0, 1 });
+		mp_2DText->AddText("SCROLL  - SWAP GUN", -0.95, 0.62, 0.035, { 0, 0, 0, 1 });
+		break;
 	}
-	else
+	if (m_State != GameStates::PLAY)
 	{
-		mp_Window->Rainbow(adjust / m_BlockSize);
+		mp_Window->Rainbow(m_SpeedAdjust / m_BlockSize);
 		mp_Window->Clear();
-		mp_2DText->AddText(m_PauseText, 0, 0, .15, { 0, 0, 0, 1 }, Alignment::Centre);
-		if (m_GameEnded) mp_2DText->AddText("PRESS-ENTER-TO-RESTART", 0, -.25, .05, { 0, 0, 0, 1 }, Alignment::Centre);
 		mp_2DText->RenderText();
 		mp_Window->Present();
 
-		if (mp_Input->KeyPressed(KEYS::ENTER) && m_GameEnded) CreateLevel();
+		if (mp_Input->AnyPressed() && !InGame()) CreateLevel();
 	}
-	
 }
 
 void Game::Draw()
@@ -403,6 +435,7 @@ void Game::Draw()
 	for (GameObject* k : mp_Keys) k->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
 	for (GameObject* m : mp_Movables) m->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
 	for (GameObject* s : mp_Spikes) s->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
+	for (GameObject* s : mp_Spikes) s->UpdateParticles(mp_Player->GetViewMatrix(), projection, mp_Player->GetPos(), m_SpeedAdjust);
 
 	mp_Player->ShowHUD(projection, mp_ALight, mp_DLight);
 

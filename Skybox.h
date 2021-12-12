@@ -16,7 +16,7 @@ struct VERTEX_INFO
 	XMFLOAT3 Normal;
 };
 
-const int NUM_VERTS = 36;
+const int CUBE_VERTS = 36;
 
 class Skybox : public Drawable
 {
@@ -27,7 +27,7 @@ private:
 	ID3D11DepthStencilState* mp_DepthWriteSkybox = 0;
 
 	ID3D11Buffer* mp_VertexBuffer;
-	VERTEX_INFO m_Vertices[NUM_VERTS] =
+	VERTEX_INFO m_Vertices[CUBE_VERTS] =
 	{
 		//BACK
 		{XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT2(0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 1.0f)},

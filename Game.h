@@ -28,6 +28,14 @@ enum class ObjectTypes
 	PLAYER = 'P',
 };
 
+enum class GameStates
+{
+	MENU,
+	PLAY,
+	PAUSE,
+	END
+};
+
 class Game
 {
 private:
@@ -65,13 +73,17 @@ private:
 	std::vector<Enemy*> mp_Enemies;
 	std::vector<Bullet*> mp_Bullets;
 
+	std::map<string, Particle> m_ParticleTemplates;
+
 	Skybox* mp_Skybox = nullptr;
+
+	float m_SpeedAdjust{ 1.0f }, m_FrameGap{ 0.0f };
 
 	float m_BlockSize{ 10 }, m_FloorHeight{ -10 }, m_ObjectHeight{ 0 }, m_Gravity{ 0.001f }, m_SkyOffset{ 1 }, m_EnemyInterval{ 10.0f };
 
-	bool m_SingleFloor{ true }, m_Paused{ false }, m_GameEnded{ false };
+	bool m_SingleFloor{ false };
 
-	string m_PauseText{ "PAUSED-(P)" };
+	GameStates m_State;
 
 public:
 	Game(_In_ HINSTANCE hInstance, _In_ int nCmdShow, Window* window);
@@ -84,10 +96,12 @@ public:
 	void CreateLevel();
 
 	int Run();
+	bool InGame();
 
 	void SpawnEnemies();
-	void MovePlayer(float adjust = 1);
-	void MoveBullets(float fpsAdjustment = 1);
+	void MovePlayer();
+	void MoveBullets();
+	void ScoreSpikes();
 	XMMATRIX XYZRotation(float x, float y, float z);
 
 	void Update();

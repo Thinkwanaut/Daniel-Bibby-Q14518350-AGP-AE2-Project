@@ -158,6 +158,7 @@
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="MoreMaths.cpp" />
     <ClCompile Include="ParticleGenerator.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="MoreMaths.h" />
     <ClInclude Include="ParticleGenerator.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="DirectionalLight.h" />

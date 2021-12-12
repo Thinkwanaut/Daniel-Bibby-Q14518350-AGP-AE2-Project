@@ -1,13 +1,8 @@
-﻿  Player.cpp
-  C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\dinput.h: DIRECTINPUT_VERSION undefined. Defaulting to version 0x0800
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(32,138): warning C4316: 'GameObject': object allocated on the heap may not be aligned 16
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(156,12): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(157,12): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(158,12): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(160,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(161,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(218,136): warning C4316: 'Bullet': object allocated on the heap may not be aligned 16
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(247,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(271,12): warning C4804: '<': unsafe use of type 'bool' in operation
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Player.cpp(277,20): warning C4018: '<': signed/unsigned mismatch
+﻿  ParticleGenerator.cpp
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\ParticleGenerator.h(41,18): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\ParticleGenerator.cpp(100,12): warning C4018: '>=': signed/unsigned mismatch
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\ParticleGenerator.cpp(107,12): warning C4018: '>=': signed/unsigned mismatch
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\ParticleGenerator.cpp(147,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\ParticleGenerator.cpp(149,9): warning C4018: '>=': signed/unsigned mismatch
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\ParticleGenerator.cpp(207,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
   Daniel Bibby Q14518350 AGP AE2 Project.vcxproj -> C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Debug\Daniel Bibby Q14518350 AGP AE2 Project.exe

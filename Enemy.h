@@ -5,9 +5,9 @@ class Enemy :
     public GameObject
 {
 private:
-    float m_Speed{ 0.05f }, m_Size{ 3.0f }, m_FlashTime{ 0.1f };
+    float m_Speed{ 0.05f }, m_Size{ 3.0f }, m_KeySize{ 2.0f }, m_FlashTime{ 0.1f };
     XMVECTOR m_FlashCol{ 1.0f, 0.0f, 0.0f, 1.0f }, m_DefaultCol{};
-    int m_Health{ 3 };
+    int m_Health{ 10 };
 
     char* m_KeyModel = nullptr;
     char* m_KeyTexture = nullptr;

@@ -7,27 +7,33 @@ Player::Player(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager*
 	m_lookAt = m_position + XMVectorSet(m_LookX, m_dy, m_LookZ, 0.0f);
 	m_up = XMVectorSet(0.0, 1.0, 0.0, 0.0);
 
+	m_HealthColour = m_DefaultTextColour; m_ScoreColour = m_DefaultTextColour; m_SpikeColour = m_DefaultTextColour;
+
 	m_Health = m_MaxHealth;
 	mp_2DText = new Text2D("Assets/myFont.png", device, context);
 	mp_Timer = new Timer();
-	mp_Timer->StartTimer("Shoot");
 
 	/*struct Gun
 	{
 		ShotInterval
 		HipAccuracy
 		ZoomAccuracy
+		BulletSpeed
+		Range
 		Damage 
 		ShotNum
 		ThroughEnemies
-		Crosshair
+		HipCrosshair
+		ZoomCrosshair
 		ZoomAngle
 	};*/
 	
 	// MAKE YOUR OWN :)
-	m_Guns.push_back(Gun{ 0.0025f, 0.7f, 0.9f, 1, 1, false, "( )", "()"});
-	m_Guns.push_back(Gun{ 0.25f, 0.5f, 0.75f, 1, 25, false, "(  )", "( )", 70.0f});
-	m_Guns.push_back(Gun{ 1.0f, 0.8f, 1.0f, 3, 1, true, "( )", "(+)", 45.0f});
+	m_Guns.push_back(Gun{ 0.02f, 0.8f, 0.95f, 1.0f, 100.0f, 1, 1, false, "( )", "()", 60.0f});
+	m_Guns.push_back(Gun{ 0.25f, 0.5f, 0.75f, 0.5f, 50.0f, 1, 25, false, "(  )", "( )", 70.0f});
+	m_Guns.push_back(Gun{ 1.0f, 0.8f, 1.0f, 1.5f, 200.0f, 10, 1, true, "[ ]", "[+]", 45.0f});
+
+	for (int g = 0; g < m_Guns.size(); g++)	mp_Timer->StartTimer("Shoot" + std::to_string(g));
 
 	mp_GunModel = new GameObject(device, context, assets, (char*)"Assets/Cube.obj", (char*)"Assets/BlankTexture.bmp", (char*)"shaders.hlsl");
 	mp_GunModel->SetScale(0.5f, 0.5f, 1.0f);
@@ -47,7 +53,7 @@ Player::~Player()
 	}
 }
 
-void Player::Move(Input* input, std::vector<GameObject*> obstacles, float grav, float adjust)
+void Player::Move(Input* input, std::vector<GameObject*> obstacles, float floorHeight, float grav, float adjust)
 {
 	AddYRot(input->MouseRelX());
 	AddXRot(-input->MouseRelY());
@@ -83,7 +89,7 @@ void Player::Move(Input* input, std::vector<GameObject*> obstacles, float grav, 
 		for (GameObject* obstacle : obstacles)
 			if (CheckCollision(obstacle)) m_z -= m_ThrowVelZ * adjust;
 	}
-	Fall(obstacles, grav, adjust);
+	Fall(obstacles, floorHeight, grav, adjust);
 
 	m_position = XMVectorSet(m_x, m_y, m_z, 0.0);
 	m_lookAt = m_position + XMVectorSet(m_LookX, m_dy, m_LookZ, 0.0f);
@@ -110,7 +116,7 @@ void Player::Strafe(float movement, std::vector<GameObject*> obstacles)
 	
 	m_z -= m_dx * movement * m_speed;
 	for (GameObject* obstacle : obstacles)
-		if (CheckCollision(obstacle)) m_z -= m_dx * movement * m_speed;
+		if (CheckCollision(obstacle)) m_z += m_dx * movement * m_speed;
 }
 
 void Player::Fly(float yAdd)
@@ -171,13 +177,13 @@ void Player::SetBullet(char* model, char* texture)
 
 bool Player::ShotReady()
 {
-	return mp_Timer->GetTimer("Shoot") > m_Guns[m_GunIndex].ShotInterval;
+	return mp_Timer->GetTimer("Shoot" + std::to_string(m_GunIndex)) > m_Guns[m_GunIndex].ShotInterval;
 }
 
 float Player::GetRandTarget()
 {
 	float accuracy = m_Zoomed ? m_Guns[m_GunIndex].ZoomAccuracy : m_Guns[m_GunIndex].HipAccuracy;
-	return ((float)(rand() % (int)((1 - accuracy) * 100 + 1)) / 100.0f) - (1 - accuracy) / 2.0f;
+	return RandomPN(1.0f - accuracy);
 }
 
 void Player::SetGun(Input* input)
@@ -196,21 +202,23 @@ void Player::SetGun(Input* input)
 
 	XMFLOAT3 offset = (m_Zoomed) ? m_ZoomOffset : m_HipOffset;
 
-	XMVECTOR gunPos = XMVector3Normalize(XMVector3Cross({ m_LookX, m_dy, m_LookZ }, { 0, -1, 0 }));
-	gunPos += XMVector3Normalize(XMVector3Cross(gunPos, { m_LookX, m_dy, m_LookZ, 0 })) * offset.y;
-	gunPos += XMVector3Normalize({ m_LookX, m_dy, m_LookZ, 0 }) * offset.z;
+	// Using m_lookAt and m_up caused access violation error only in Release x86. Unsure why
+	XMVECTOR gunPos = XMVector3Normalize(XMVector3Cross({ m_LookX, m_dy, m_LookZ }, { 0, -1, 0 })) * offset.x; // Side offset
+	gunPos += XMVector3Normalize(XMVector3Cross(gunPos, { m_LookX, m_dy, m_LookZ, 0 })) * offset.y; // Downward offset
+	gunPos += XMVector3Normalize({ m_LookX, m_dy, m_LookZ, 0 }) * offset.z; // Forward offset
 	gunPos += {m_x, m_y, m_z};
 
 	mp_GunModel->SetPos(XMVectorGetX(gunPos), XMVectorGetY(gunPos), XMVectorGetZ(gunPos));
 	mp_GunModel->LookAtRelative(m_LookX, m_dy, m_LookZ);
 }
 
-std::vector<Bullet*> Player::Shoot()
+std::vector<Bullet*> Player::Shoot(float gap)
 {
 	std::vector<Bullet*> newBullets;
 	if (ShotReady())
 	{
-		for (int s = 0; s < m_Guns[m_GunIndex].ShotNum; s++)
+		int totalShots = m_Guns[m_GunIndex].ShotNum * ceilf(gap / m_Guns[m_GunIndex].ShotInterval);
+		for (int s = 0; s < totalShots; s++)
 		{
 			float tx = mp_GunModel->GetX() + m_LookX * m_TargetDist + m_TargetDist * GetRandTarget();
 			float ty = mp_GunModel->GetY() + m_dy * m_TargetDist + m_TargetDist * GetRandTarget();
@@ -218,10 +226,10 @@ std::vector<Bullet*> Player::Shoot()
 			XMFLOAT3 gunTarget = { tx, ty, tz };
 			XMFLOAT3 bullPos = { m_LookX * mp_GunModel->GetScale().z + mp_GunModel->GetPos().x, m_dy * mp_GunModel->GetScale().z + mp_GunModel->GetPos().y, m_LookZ * mp_GunModel->GetScale().z + mp_GunModel->GetPos().z };
 			newBullets.push_back(new Bullet(mp_D3DDevice, mp_ImmediateContext, mp_Assets, m_BulletModel, m_BulletTexture, (char*)"shaders.hlsl"));
-			newBullets[s]->Shoot(bullPos, gunTarget, m_Guns[m_GunIndex].Damage, m_Guns[m_GunIndex].ThroughEnemies);
+			newBullets[s]->Shoot(bullPos, gunTarget, m_Guns[m_GunIndex].BulletSpeed, m_Guns[m_GunIndex].Damage, m_Guns[m_GunIndex].Range, m_Guns[m_GunIndex].ThroughEnemies);
 		}
 
-		mp_Timer->StartTimer("Shoot");
+		mp_Timer->StartTimer("Shoot" + std::to_string(m_GunIndex));
 	}
 
 	return newBullets;
@@ -265,12 +273,23 @@ void Player::GetHit()
 	mp_Timer->StartTimer("HealthFlash");
 }
 
+void Player::SetSpikeScore(int spikes, int maxSpikes)
+{
+	if (spikes != m_SpikeScore)
+	{
+		m_SpikeColour = { 1.0f, 1.0f, 0.0f, 1.0f };
+		mp_Timer->StartTimer("SpikeFlash");
+	}
+	m_SpikeScore = spikes;
+	m_MaxSpikes = maxSpikes;
+}
+
 void Player::Magnet(std::vector<GameObject*> items, float adjust)
 {
-	for (GameObject* i : items)
+	for (GameObject* i : items) //(int i = 0; i < items.size(); i++)
 	{
 		float distRatio = GetDistanceSquared(i) / m_PullRangeSq;
-		if (0.0f < distRatio < 1.0f) i->MoveTowards(this, m_PullStrength / distRatio, adjust);
+		if (distRatio < 1.0f) i->MoveTowards(this, min(m_MinPull / distRatio, m_MaxPull), adjust);
 	}
 }
 
@@ -308,7 +327,7 @@ bool Player::Dead()
 
 bool Player::Won()
 {
-	return m_Score >= m_MaxScore;
+	return m_Score >= m_MaxScore && m_SpikeScore >= m_MaxSpikes;
 }
 
 float Player::GetProjectionAngle()
@@ -326,44 +345,19 @@ XMFLOAT3 Player::GetPos()
 	return { m_x, m_y, m_z };
 }
 
-XMFLOAT2 Player::Normalise2D(XMFLOAT2 vector)
-{
-	float magnitude = powf(powf(vector.x, 2.0f) + powf(vector.y, 2), 0.5f);
-	if (magnitude > 0)
-		return XMFLOAT2{ vector.x / magnitude, vector.y / magnitude };
-	else return vector;
-}
-
-XMFLOAT3 Player::Normalise3D(XMFLOAT3 vector)
-{
-	float magnitude = powf(powf(vector.x, 2.0f) + powf(vector.y, 2.0f) + powf(vector.z, 2.0f), 0.5f);
-	if (magnitude > 0)
-		return XMFLOAT3{ vector.x / magnitude, vector.y / magnitude, vector.z / magnitude };
-	else return vector;
-}
-
-XMFLOAT3 Player::CrossProduct(XMFLOAT3 a, XMFLOAT3 b)
-{
-	XMFLOAT3 c = { 0.0f, 0.0f, 0.0f };
-
-	c.x = (a.y * b.z - a.z * b.y);
-	c.y = (a.z * b.x - a.x * b.z);
-	c.z = (a.x * b.y - a.y * b.x);
-
-	return c;
-}
-
 void Player::ShowHUD(XMMATRIX projection, Light* ambient, DirectionalLight* directional, PointLight* point)
 {
 	mp_GunModel->Draw(GetViewMatrix(), projection, ambient, directional, point);
 
-	if (mp_Timer->GetTimer("HealthFlash") > m_FlashTime) m_HealthColour = { 1.0f, 1.0f, 1.0f, 1.0f };
-	if (mp_Timer->GetTimer("ScoreFlash") > m_FlashTime) m_ScoreColour = { 1.0f, 1.0f, 1.0f, 1.0f };
+	if (mp_Timer->GetTimer("HealthFlash") > m_FlashTime) m_HealthColour = m_DefaultTextColour;
+	if (mp_Timer->GetTimer("ScoreFlash") > m_FlashTime) m_ScoreColour = m_DefaultTextColour;
+	if (mp_Timer->GetTimer("SpikeFlash") > m_FlashTime) m_SpikeColour = m_DefaultTextColour;
 
 	//Will use text for basic UI images
-	mp_2DText->AddText(m_Zoomed ? m_Guns[m_GunIndex].ZoomCrosshair : m_Guns[m_GunIndex].HipCrosshair, 0.0f, 0.0f, 0.1f, { 0.0f, 1.0f, 0.0f, 0.7f }, Alignment::Centre); 
+	mp_2DText->AddText(m_Zoomed ? m_Guns[m_GunIndex].ZoomCrosshair : m_Guns[m_GunIndex].HipCrosshair, 0.0f, 0.0f, 0.1f, { 0.0f, 1.0f, 0.0f, m_Zoomed ? 0.9f : 0.5f }, Alignment::Centre);
 	mp_2DText->AddText("HP-" + std::to_string((int)m_Health), -0.9f, 0.9f, 0.05f, m_HealthColour);
 	mp_2DText->AddText("Score-" + std::to_string(m_Score) + "/" + std::to_string(m_MaxScore), -0.9f, 0.8f, 0.05f, m_ScoreColour);
-	mp_2DText->AddText("Gun-" + std::to_string(m_GunIndex), 0.9f, 0.9f, 0.05f, { 1.0f, 1.0f, 1.0f, 1.0f }, Alignment::Right);
+	mp_2DText->AddText("Spikes-" + std::to_string(m_SpikeScore) + "/" + std::to_string(m_MaxSpikes), -0.9f, 0.7f, 0.05f, m_SpikeColour);
+	mp_2DText->AddText("Gun-" + std::to_string(m_GunIndex), 0.9f, 0.9f, 0.05f, m_DefaultTextColour, Alignment::Right);
 	mp_2DText->RenderText();
 }

@@ -13,16 +13,18 @@ enum class KEYS
 
 enum class MOUSE
 {
-	LCLICK, RCLICK, MCLICK
+	LCLICK, RCLICK, MCLICK, BUTTONS
 };
+
+const int NUM_KEYS = 256;
 
 class Input
 {
 private:
 	IDirectInput8* mp_DirectInput = nullptr;
 	IDirectInputDevice8* mp_KeyboardDevice = nullptr;
-	unsigned char m_keyboardKeyStates[256];
-	unsigned char m_keyboardPrevKeyStates[256];
+	unsigned char m_keyboardKeyStates[NUM_KEYS];
+	unsigned char m_keyboardPrevKeyStates[NUM_KEYS];
 
 	IDirectInputDevice8* mp_MouseDevice = nullptr;
 	DIMOUSESTATE m_mouseState;
@@ -34,6 +36,7 @@ public:
 
 	HRESULT InitialiseInput(HINSTANCE hInst, HWND hWnd);
 	void ReadInputStates();
+	bool AnyPressed();
 	bool KeyHeld(KEYS key);
 	bool KeyPressed(KEYS key);
 	bool KeyReleased(KEYS key);

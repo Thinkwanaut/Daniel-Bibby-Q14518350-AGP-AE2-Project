@@ -23,7 +23,7 @@ HRESULT Skybox::CreateBuffer()
 	D3D11_BUFFER_DESC bufferDesc;
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;					
-	bufferDesc.ByteWidth = sizeof(m_Vertices[0]) * NUM_VERTS;
+	bufferDesc.ByteWidth = sizeof(m_Vertices[0]) * CUBE_VERTS;
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;						
 	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	HRESULT hr = mp_D3DDevice->CreateBuffer(&bufferDesc, NULL, &mp_VertexBuffer);
@@ -32,7 +32,7 @@ HRESULT Skybox::CreateBuffer()
 
 	D3D11_MAPPED_SUBRESOURCE ms;
 	mp_ImmediateContext->Map(mp_VertexBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
-	memcpy(ms.pData, m_Vertices, sizeof(m_Vertices[0]) * NUM_VERTS);
+	memcpy(ms.pData, m_Vertices, sizeof(m_Vertices[0]) * CUBE_VERTS);
 	mp_ImmediateContext->Unmap(mp_VertexBuffer, NULL);						
 
 	return S_OK;
@@ -83,7 +83,7 @@ void Skybox::Draw(XMMATRIX view, XMMATRIX projection, Light* ambient)
 	mp_ImmediateContext->IASetVertexBuffers(0, 1, &mp_VertexBuffer, &stride, &offset);
 	mp_ImmediateContext->RSSetState(mp_RasterCullBack);
 	mp_ImmediateContext->OMSetDepthStencilState(mp_DepthWriteSkybox, NULL);
-	mp_ImmediateContext->Draw(NUM_VERTS, 0);
+	mp_ImmediateContext->Draw(CUBE_VERTS, 0);
 	mp_ImmediateContext->RSSetState(mp_RasterSolid);
 	mp_ImmediateContext->OMSetDepthStencilState(mp_DepthWriteSolid, NULL);
 }

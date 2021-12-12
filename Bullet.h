@@ -16,7 +16,7 @@ private:
 public:
     Bullet(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager* assets, char* model, char* texture, char* shader);
 
-    void Shoot(XMFLOAT3 start, XMFLOAT3 target, int damage = 1, bool throughEnemies = false);
+    void Shoot(XMFLOAT3 start, XMFLOAT3 target, float speed = 1.0f, int damage = 1, float range = 200.0f, bool throughEnemies = false);
     bool Move(std::vector<GameObject*> Obstacles, float lagAdjust=1);
     bool TargetCheck(std::vector<Enemy*> Enemies, int* index);
 };

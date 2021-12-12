@@ -1,4 +1,4 @@
-TextureCube cube0;
+Texture2D texture0;
 SamplerState sampler0;
 
 struct VOut
@@ -20,7 +20,7 @@ VOut VShader(float4 position : POSITION)
 
 	output.texcoord = position.xy;
 	output.position = mul(WVPMatrix, position);
-	output.colour = float4 (1, 1, 1, 1);
+	output.colour = colour;
 
 	return output;
 }
