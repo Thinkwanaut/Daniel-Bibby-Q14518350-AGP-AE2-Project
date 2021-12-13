@@ -29,9 +29,9 @@ Player::Player(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager*
 	};*/
 	
 	// MAKE YOUR OWN :)
-	m_Guns.push_back(Gun{ 0.02f, 0.8f, 0.95f, 1.0f, 100.0f, 1, 1, false, "( )", "()", 60.0f});
+	m_Guns.push_back(Gun{ 0.02f, 0.8f, 0.95f, 0.75f, 100.0f, 1, 1, false, "( )", "()", 60.0f});
 	m_Guns.push_back(Gun{ 0.25f, 0.5f, 0.75f, 0.5f, 50.0f, 1, 25, false, "(  )", "( )", 70.0f});
-	m_Guns.push_back(Gun{ 1.0f, 0.8f, 1.0f, 1.5f, 200.0f, 10, 1, true, "[ ]", "[+]", 45.0f});
+	m_Guns.push_back(Gun{ 1.0f, 0.8f, 1.0f, 5.f, 500.0f, 10, 1, true, "[ ]", "[+]", 45.0f});
 
 	for (int g = 0; g < m_Guns.size(); g++)	mp_Timer->StartTimer("Shoot" + std::to_string(g));
 
@@ -217,7 +217,7 @@ std::vector<Bullet*> Player::Shoot(float gap)
 	std::vector<Bullet*> newBullets;
 	if (ShotReady())
 	{
-		int totalShots = m_Guns[m_GunIndex].ShotNum * ceilf(gap / m_Guns[m_GunIndex].ShotInterval);
+		int totalShots = m_Guns[m_GunIndex].ShotNum * ceilf(gap / m_Guns[m_GunIndex].ShotInterval); // Spawn delayed in single frame to account for lag
 		for (int s = 0; s < totalShots; s++)
 		{
 			float tx = mp_GunModel->GetX() + m_LookX * m_TargetDist + m_TargetDist * GetRandTarget();
@@ -227,7 +227,7 @@ std::vector<Bullet*> Player::Shoot(float gap)
 			XMFLOAT3 bullPos = { m_LookX * mp_GunModel->GetScale().z + mp_GunModel->GetPos().x, m_dy * mp_GunModel->GetScale().z + mp_GunModel->GetPos().y, m_LookZ * mp_GunModel->GetScale().z + mp_GunModel->GetPos().z };
 			newBullets.push_back(new Bullet(mp_D3DDevice, mp_ImmediateContext, mp_Assets, m_BulletModel, m_BulletTexture, (char*)"shaders.hlsl"));
 			newBullets[s]->Shoot(bullPos, gunTarget, m_Guns[m_GunIndex].BulletSpeed, m_Guns[m_GunIndex].Damage, m_Guns[m_GunIndex].Range, m_Guns[m_GunIndex].ThroughEnemies);
-			//newBullets[s]->MoveForward(m_Guns[m_GunIndex].BulletSpeed, RandomRange(0, gap)); // Offset startpos slightly
+			newBullets[s]->MoveForward(m_Guns[m_GunIndex].BulletSpeed * floorf((float)s / (float)m_Guns[m_GunIndex].ShotNum)); // Move catch up bullets forward
 		}
 
 		mp_Timer->StartTimer("Shoot" + std::to_string(m_GunIndex));

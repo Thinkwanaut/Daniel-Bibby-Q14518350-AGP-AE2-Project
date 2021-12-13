@@ -82,3 +82,8 @@ XMFLOAT3 Random3(float minscale, float maxscale)
 
 	return { baseVec.x * scale, baseVec.y * scale, baseVec.z * scale };
 }
+
+XMFLOAT2 Rotate2(XMFLOAT2 vec, float angle)
+{
+	return { vec.x * cosf(angle) - vec.y * sinf(angle), vec.x * sinf(angle) + vec.y * cosf(angle) };
+}

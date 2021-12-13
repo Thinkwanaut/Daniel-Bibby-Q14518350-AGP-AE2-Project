@@ -55,7 +55,7 @@ private:
 
 	float m_ColRand{ 0.f }; // *
 	float m_SizeRand{ .0f }; // *
-	float m_VelRand{ 0.1f }; // +
+	float m_VelRand{ 0.01f }; // +
 
 public:
 	ParticleGenerator(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager* assets, char* texture, char* shader);
@@ -65,18 +65,19 @@ public:
 	void ClearParticles();
 
 	void SetActive(bool active, bool clearActive = false);
+	void StartTimer();
 
 	void SetNumber(int num);
 	void SetInterval(float interval);
 	void SetLifetime(float life);
-	void SetSize(float x, float y, float z, float rand = 0.0f);
-	void SetSize(XMFLOAT3 size, float rand = 0.0f);
+	void SetSize(float x, float y, float z, float rand = -1.0f);
+	void SetSize(XMFLOAT3 size, float rand = -1.0f);
 	void AddColour(float r, float g, float b, float a);
 	void AddColour(XMFLOAT4 newCol);
 	void SetColour(float r, float g, float b, float a, int index = 0);
 	void SetColour(XMFLOAT4 col, int index = 0);
-	void SetVelocity(float x, float y, float z, float rand = 0.0f);
-	void SetVelocity(XMFLOAT3 vel, float rand = 0.0f);
+	void SetVelocity(float x, float y, float z, float rand = -1.0f);
+	void SetVelocity(XMFLOAT3 vel, float rand = -1.0f);
 	void SetAcceleration(float x, float y, float z);
 	void SetAcceleration(XMFLOAT3 vel);
 	void SetGravity(float grav);

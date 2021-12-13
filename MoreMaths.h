@@ -25,3 +25,6 @@ float RandomRange(float minscale, float maxscale);
 
 XMFLOAT2 Random2(float minscale, float maxscale);
 XMFLOAT3 Random3(float minscale, float maxscale);
+
+XMFLOAT2 Rotate2(XMFLOAT2 vec, float angle);
+//XMFLOAT3 Rotate3(XMFLOAT3 vec, float angle);

@@ -21,7 +21,10 @@ Game::Game(_In_ HINSTANCE hInstance, _In_ int nCmdShow, Window* window)
 	mp_2DText = new Text2D("Assets/myFont.png", mp_Window->Device(), mp_Window->Context());
 
 	SetLayout();
-	//CreateLevel();
+
+#ifndef NDEBUG
+	m_DebugMode = true; // Use for optimisation options
+#endif
 }
 
 Game::~Game()
@@ -239,8 +242,10 @@ void Game::CreateLevel()
 
 	m_State = GameStates::PLAY;
 
-	mp_Timer->TickFPS();
 	SpawnEnemies();
+	mp_Timer->TickFPS();
+
+	for (GameObject* s : mp_Spikes) s->StartParticles();
 }
 
 int Game::Run()
@@ -295,22 +300,20 @@ void Game::MoveBullets()
 	int bulletCounter = 0;
 	while (bulletCounter != mp_Bullets.size())
 	{
-		if (mp_Bullets[bulletCounter]->Move(mp_Blockers, m_SpeedAdjust)) mp_Bullets.erase(std::begin(mp_Bullets) + bulletCounter);
-		else
+		int targetHit{ -1 };
+
+		// only sweep for enemies if not in debug as game will be running faster
+		bool destroyBullet = mp_Bullets[bulletCounter]->Move(mp_Blockers, mp_Enemies, &targetHit, m_SpeedAdjust, !m_DebugMode);
+		if (targetHit >= 0)
 		{
-			int targetHit;
-			bool destroyBullet = mp_Bullets[bulletCounter]->TargetCheck(mp_Enemies, &targetHit);
-			if (targetHit >= 0)
+			if (mp_Enemies[targetHit]->IsDead())
 			{
-				if (mp_Enemies[targetHit]->IsDead())
-				{
-					mp_Keys.push_back(mp_Enemies[targetHit]->SpawnKey());
-					mp_Enemies.erase(std::begin(mp_Enemies) + targetHit); //Delete enemy the bullet has hit
-				}
+				mp_Keys.push_back(mp_Enemies[targetHit]->SpawnKey());
+				mp_Enemies.erase(std::begin(mp_Enemies) + targetHit); //Delete enemy the bullet has hit
 			}
-			if (destroyBullet) mp_Bullets.erase(std::begin(mp_Bullets) + bulletCounter); //Delete bullet registering collision
-			else ++bulletCounter; //Allow bullets to be deleted mid-loop without out-indexing vector
 		}
+		if (destroyBullet) mp_Bullets.erase(std::begin(mp_Bullets) + bulletCounter); //Delete bullet registering collision
+		else ++bulletCounter; //Allow bullets to be deleted mid-loop without out-indexing vector
 	}
 }
 
@@ -327,6 +330,7 @@ void Game::ScoreSpikes()
 				s->SetParticles(false, true);
 				break;
 			}
+			else s->SetParticles(true);
 		}
 		s->Fall(mp_Obstacles, m_FloorHeight - m_BlockSize, m_Gravity, m_SpeedAdjust);
 	}
@@ -372,11 +376,11 @@ void Game::Update()
 		MoveBullets();
 		for (GameObject* m : mp_Movables)
 		{
-			m->Fall(mp_Obstacles, m_FloorHeight - m_BlockSize, m_Gravity, m_SpeedAdjust);
+			m->Fall(mp_Obstacles, m_FloorHeight, m_Gravity, m_SpeedAdjust);
 			m->GetPushed(mp_Pushers, mp_Obstacles);
 		}
 		for (Enemy* e : mp_Enemies) e->Move(mp_Player, mp_Blockers, m_SpeedAdjust);
-		for (GameObject* h : mp_HealthPacks) h->Fall(mp_Obstacles, m_FloorHeight - m_BlockSize, m_Gravity, m_SpeedAdjust);
+		for (GameObject* h : mp_HealthPacks) h->Fall(mp_Obstacles, m_FloorHeight, m_Gravity, m_SpeedAdjust);
 		for (GameObject* k : mp_Keys) k->Fall(mp_Obstacles, m_FloorHeight - m_BlockSize, m_Gravity, m_SpeedAdjust);
 
 		ScoreSpikes();

@@ -21,12 +21,31 @@ void Bullet::Shoot(XMFLOAT3 start, XMFLOAT3 target, float speed, int damage, flo
 	m_ThroughEnemies = throughEnemies;
 }
 
-bool Bullet::Move(std::vector<GameObject*> Obstacles, float lagAdjust)
+bool Bullet::Move(std::vector<GameObject*> Obstacles, std::vector<Enemy*> enemies, int* index, float adjust, bool sweepDetection)
 {
-	MoveForward(m_Speed, lagAdjust);
+	m_Hit = false;
+	float sweep = (sweepDetection && enemies.size() > 0) ? enemies[0]->GetScale().z : m_Speed * adjust;
+	float moved = 0.0f;
 
-	for (GameObject* o : Obstacles)
-		if (CheckCollision(o)) return true;
+	// Move bullets in smaller increments (no greater than enemy size) so that they do not pass over enemies in a single frame
+	// More expensive to run (hence optional boolean) but ensures more consistent gameplay
+
+	while (moved < m_Speed * adjust)
+	{
+		float nm = min(sweep, m_Speed * adjust - moved);
+
+		float xm = sin(XMConvertToRadians(m_yRot)) * nm * cos(XMConvertToRadians(m_xRot));
+		float ym = -sin(XMConvertToRadians(m_xRot)) * nm;
+		float zm = cos(XMConvertToRadians(m_yRot)) * nm * cos(XMConvertToRadians(m_xRot));
+
+		m_x += xm; m_y += ym; m_z += zm;
+
+		if (TargetCheck(enemies, index)) return true;
+		for (GameObject* o : Obstacles) 
+			if (CheckCollision(o)) return true;
+
+		moved += nm;
+	}
 
 	XMVECTOR aToB = XMVectorSet(m_x - m_Start.x, m_y - m_Start.y, m_z - m_Start.z, 0.0f); // Check for max travel distance, then destroy
 	float d_sq = powf(XMVectorGetX(aToB), 2) + powf(XMVectorGetY(aToB), 2) + powf(XMVectorGetZ(aToB), 2);
@@ -36,6 +55,8 @@ bool Bullet::Move(std::vector<GameObject*> Obstacles, float lagAdjust)
 
 bool Bullet::TargetCheck(std::vector<Enemy*> Enemies, int* index)
 {
+	if (m_Hit) return false; // Avoid bullets hitting enemies multiple times per frame
+
 	*index = -1;
 	for (int e = 0; e < Enemies.size(); e++)
 	{
@@ -43,7 +64,10 @@ bool Bullet::TargetCheck(std::vector<Enemy*> Enemies, int* index)
 		{
 			*index = e;
 			Enemies[e]->GetHit(m_Damage);
+			m_Hit = true;
+			if (!m_ThroughEnemies) return true;
 		}
 	}
-	return *index != -1 && !m_ThroughEnemies;
+
+	return false;
 }

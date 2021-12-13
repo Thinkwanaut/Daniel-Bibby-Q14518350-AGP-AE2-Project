@@ -81,7 +81,7 @@ private:
 
 	float m_BlockSize{ 10 }, m_FloorHeight{ -10 }, m_ObjectHeight{ 0 }, m_Gravity{ 0.001f }, m_SkyOffset{ 1 }, m_EnemyInterval{ 10.0f };
 
-	bool m_SingleFloor{ false };
+	bool m_SingleFloor{ false }, m_DebugMode{ false };
 
 	GameStates m_State;
 

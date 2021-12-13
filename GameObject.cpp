@@ -259,21 +259,28 @@ void GameObject::SetCollisionType(ColliderShape shape)
 void GameObject::MakeParticles()
 {
 	mp_Particles = new ParticleGenerator(mp_D3DDevice, mp_ImmediateContext, mp_Assets, (char*)"BoxTexture.bmp", (char*)"particleShaders.hlsl");
-	mp_Particles->SetColour({ 1.f, 0.f, 0.f, 1.0f });
-	mp_Particles->AddColour({ 1.0f, 1.0f, 0.0f, 1.0f });
-	mp_Particles->AddColour({ 0.0f, 1.0f, 0.0f, 1.0f });
-	mp_Particles->AddColour({ 0.0f, 1.0f, 1.0f, 1.0f });
-	mp_Particles->AddColour({ 0.0f, 0.0f, 1.0f, 1.0f });
-	mp_Particles->AddColour({ 1.0f, 0.0f, 1.0f, 1.0f });
-	mp_Particles->SetSize({ 1.0f, 1.0f, 1.0f });
-	mp_Particles->SetNumber(100);
-	mp_Particles->SetInterval(0.01);
+	mp_Particles->SetColour({ 1.f, 1.f, 0.f, 1.0f });
+	mp_Particles->AddColour({ 1.0f, .0f, 0.0f, 1.0f });
+	mp_Particles->AddColour({ 0.0f, 0.0f, 0.0f, 0.0f });
+	//mp_Particles->AddColour({ 0.0f, 1.0f, 1.0f, 1.0f });
+	//mp_Particles->AddColour({ 0.0f, 0.0f, 1.0f, 1.0f });
+	//mp_Particles->AddColour({ 1.0f, 0.0f, 1.0f, 1.0f });
+	mp_Particles->SetSize({ 0.1f, 2.0f, 0.1f });
+	mp_Particles->SetVelocity( { 0.0f, 0.02f, 0.0f }, 0.0f);
+	mp_Particles->SetNumber(200);
+	mp_Particles->SetInterval(0.005f);
 	mp_Particles->SetLifetime(1.f);
+	mp_Particles->SetGravity(0.0f);
+}
+
+void GameObject::StartParticles()
+{
+	if (mp_Particles) mp_Particles->StartTimer();
 }
 
 void GameObject::SetParticles(bool active, bool clearActive)
 {
-	mp_Particles->SetActive(active, clearActive);
+	if (mp_Particles) mp_Particles->SetActive(active, clearActive);
 }
 
 void GameObject::UpdateParticles(XMMATRIX view, XMMATRIX projection, XMFLOAT3 camPos, float adjust)

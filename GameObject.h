@@ -67,6 +67,7 @@ public:
 	
 	void SetCollisionType(ColliderShape shape);
 	void MakeParticles();
+	void StartParticles();
 	void SetParticles(bool active, bool clearActive = false);
 	void UpdateParticles(XMMATRIX view, XMMATRIX projection, XMFLOAT3 camPos, float adjust = 1.0f);
 	void LookAtRelative(float x, float y, float z);

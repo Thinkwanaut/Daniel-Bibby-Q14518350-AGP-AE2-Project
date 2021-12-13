@@ -1,17 +1,7 @@
-﻿  GameObject.cpp
+﻿  Bullet.cpp
 C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\ParticleGenerator.h(42,18): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\GameObject.cpp(146,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\GameObject.cpp(189,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\GameObject.cpp(261,140): warning C4316: 'ParticleGenerator': object allocated on the heap may not be aligned 16
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\GameObject.cpp(297,56): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\GameObject.cpp(298,84): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\GameObject.cpp(299,56): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\GameObject.cpp(300,84): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\GameObject.cpp(305,90): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\GameObject.cpp(306,57): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\GameObject.cpp(307,90): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\GameObject.cpp(312,90): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\GameObject.cpp(316,57): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\GameObject.cpp(320,90): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\GameObject.cpp(184): warning C4715: 'GameObject::GetDimensions': not all control paths return a value
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Bullet.cpp(37,12): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Bullet.cpp(38,12): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Bullet.cpp(39,12): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Bullet.cpp(61,20): warning C4018: '<': signed/unsigned mismatch
   Daniel Bibby Q14518350 AGP AE2 Project.vcxproj -> C:\Users\danbb\Documents\Homework\Uni\Advanced Games Programming\AE2\Daniel Bibby Q14518350 AGP AE2 Project\Debug\Daniel Bibby Q14518350 AGP AE2 Project.exe

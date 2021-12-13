@@ -75,7 +75,8 @@ void ParticleGenerator::SetActive(bool active, bool clearActive)
 
 void ParticleGenerator::SetNumber(int num)
 {
-	if (num > m_ParticleNum) for (int p = mp_Dead.size() + mp_Alive.size(); p < m_ParticleNum; p++) mp_Dead.push_back(new Particle());
+	if (num > m_ParticleNum) 
+		for (int p = m_ParticleNum; p < num; p++) mp_Dead.push_back(new Particle());
 	else
 	{
 		ClearParticles();
@@ -89,14 +90,21 @@ void ParticleGenerator::SetLifetime(float life)
 	m_LifeTime = life;
 }
 
+void ParticleGenerator::StartTimer()
+{
+	mp_Timer->StartTimer("Particle");
+}
+
 void ParticleGenerator::SetSize(float x, float y, float z, float rand)
 {
 	m_Size = { x, y, z };
+	if (rand >= 0.0f) m_SizeRand = rand;
 }
 
 void ParticleGenerator::SetSize(XMFLOAT3 size, float rand)
 {
 	m_Size = size;
+	if (rand >= 0.0f) m_SizeRand = rand;
 }
 
 void ParticleGenerator::AddColour(float r, float g, float b, float a)
@@ -126,11 +134,13 @@ void ParticleGenerator::SetColour(XMFLOAT4 col, int index)
 void ParticleGenerator::SetVelocity(float x, float y, float z, float rand)
 {
 	m_BaseVelocity = { x, y, z };
+	if (rand >= 0.0f) m_VelRand = rand;
 }
 
 void ParticleGenerator::SetVelocity(XMFLOAT3 vel, float rand)
 {
 	m_BaseVelocity = vel;
+	if (rand >= 0.0f) m_VelRand = rand;
 }
 
 void ParticleGenerator::SetInterval(float interval)
@@ -180,12 +190,15 @@ void ParticleGenerator::SpawnParticle()
 
 	mp_Alive.push_back(*m_PIt);
 	mp_Dead.pop_front();
-	mp_Timer->StartTimer("Particle");
 }
 
 void ParticleGenerator::UpdateParticles(float adjust)
 {
-	if (mp_Timer->GetTimer("Particle") > m_Interval) SpawnParticle();
+	if (mp_Timer->GetTimer("Particle") > m_Interval)
+	{
+		for (int p = 0; p < floorf(mp_Timer->GetTimer("Particle") / m_Interval); p++) SpawnParticle();
+		mp_Timer->StartTimer("Particle");
+	}
 
 	if (mp_Alive.size() == NULL) return;
 
@@ -214,11 +227,18 @@ void ParticleGenerator::UpdateParticles(float adjust)
 
 void ParticleGenerator::UpdateConstantBuffer(Particle* particle, XMMATRIX view, XMMATRIX projection, XMFLOAT3 cameraPos)
 {
+	/*float lookAngle = XMVectorGetX(XMVector2AngleBetweenVectors(
+		{ cameraPos.x - particle->Pos.x, cameraPos.z - particle->Pos.z },
+		{ particle->Vel.x, particle->Vel.z }));
+	XMFLOAT2 perpVel = Rotate2({ particle->Vel.x, particle->Vel.z }, -(XM_PI / 2.0f - lookAngle));
+	float perpVelM = powf(powf(perpVel.x, 2) + powf(perpVel.y, 2), 0.5f);
+	float zrot = atan2(perpVelM, particle->Vel.y);*/ // An attempt at rotating particle based on velocity relative to the player to create an arc.
+
 	float yrot = atan2f(cameraPos.x - particle->Pos.x, cameraPos.z - particle->Pos.z);
 	float xrot = -atan2f(cameraPos.y - particle->Pos.y, powf(powf(cameraPos.x - particle->Pos.x, 2) + powf(cameraPos.z - particle->Pos.z, 2), 0.5f));
 
 	XMMATRIX world = XMMatrixScaling(particle->Size.x, particle->Size.y, particle->Size.z);
-	world *= XMMatrixRotationX(xrot) * XMMatrixRotationY(yrot);
+	world *= XMMatrixRotationX(xrot) * XMMatrixRotationY(yrot);// *XMMatrixRotationZ(zrot);
 	world *= XMMatrixTranslation(particle->Pos.x, particle->Pos.y, particle->Pos.z);
 
 	PARTICLE_BUFFER cb{};
