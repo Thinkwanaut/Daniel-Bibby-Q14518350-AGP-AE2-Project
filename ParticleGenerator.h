@@ -17,6 +17,12 @@ struct Particle
 	int ID{ -1 };
 };
 
+enum class Presets
+{
+	FIRE,
+	KEY
+};
+
 const int PARTICLE_VERTS{ 6 };
 
 class ParticleGenerator : public Drawable
@@ -57,12 +63,16 @@ private:
 	float m_SizeRand{ .0f }; // *
 	float m_VelRand{ 0.01f }; // +
 
+	bool m_RandSpawn[3] = { true, true, true }; // Spawn at between edge and centre or at centre, xyz
+
 public:
 	ParticleGenerator(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager* assets, char* texture, char* shader);
 	~ParticleGenerator();
 
 	HRESULT CreateParticle();
 	void ClearParticles();
+
+	void SetPreset(Presets type);
 
 	void SetActive(bool active, bool clearActive = false);
 	void StartTimer();
@@ -81,9 +91,10 @@ public:
 	void SetAcceleration(float x, float y, float z);
 	void SetAcceleration(XMFLOAT3 vel);
 	void SetGravity(float grav);
+	void SetRandSpawn(bool x, bool y, bool z);
 
 	void SpawnParticle();
-	void UpdateParticles(float adjust = 1.0f);
+	void UpdateParticles(float adjust = 1.0f, bool catchUp = true);
 
 	void UpdateConstantBuffer(Particle* particle, XMMATRIX view, XMMATRIX projection, XMFLOAT3 cameraPos);
 

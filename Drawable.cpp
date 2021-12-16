@@ -9,6 +9,9 @@ Drawable::Drawable(ID3D11Device* device, ID3D11DeviceContext* context, AssetMana
 	mp_ConstantBuffer = assets->GetBuffer(shader);
 	mp_Sampler = assets->GetSampler(shader);
 	mp_Texture = assets->GetTexture(texture);
+
+	mp_Timer = new Timer();
+	mp_Timer->StartTimer("Colour");
 }
 
 void Drawable::SetPos(float x, float y, float z)
@@ -41,14 +44,39 @@ void Drawable::SetScale(XMFLOAT3 scale)
 	m_xScale = scale.x;	m_yScale = scale.y; m_zScale = scale.z;
 }
 
-void Drawable::SetColour(XMVECTOR colour)
+void Drawable::SetTint(XMFLOAT4 colour, int index)
 {
-	m_Tint = colour;
+	m_Tint[index] = colour;
 }
 
-void Drawable::AddColour(XMVECTOR colour)
+void Drawable::AddTintCycle(XMFLOAT4 colour)
+{
+	m_Tint.push_back(colour);
+}
+
+void Drawable::SetColourOverlay(XMFLOAT4 colour)
 {
 	m_AddedColour = colour;
+}
+
+void Drawable::SetCycleTime(float time)
+{
+	m_ColourDuration = time;
+}
+
+XMFLOAT4 Drawable::GetTint()
+{
+	if (m_Tint.size() == 1) return m_Tint[0];
+
+	int currentColour = (int)floorf(mp_Timer->GetTimer("Colour") / m_ColourDuration) % m_Tint.size();
+	int nextColour = (currentColour + 1) % m_Tint.size();
+	
+	float colourTimer = fmodf(mp_Timer->GetTimer("Colour") / m_ColourDuration, 1.0f);
+
+	if (mp_Timer->GetTimer("Colour") > m_ColourDuration * m_Tint.size()) mp_Timer->StartTimer("Colour");
+
+	return Lerp4(m_Tint[currentColour], m_Tint[nextColour], colourTimer);
+
 }
 
 void Drawable::LookAt_XZ(float x, float z)

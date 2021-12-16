@@ -105,6 +105,7 @@ void ObjFileModel::parsefile()
 			if(!success) {char s[100] = "ERROR: Badly formatted vertex, line : "; _itoa(line, &s[strlen(s)], 10); strcat(s, " : "); strcat(s, filename.c_str());  DXTRACE_MSG(s); }
 
 			position_list.push_back(tempxyz); // add a new element to the list
+
 			scale = max(scale, tempxyz.x, tempxyz.y, tempxyz.z);
 		}
 		else if(strncmp(&fbuffer[tokenstart], "vt", 2)==0) // TEXTURE COORDINATES

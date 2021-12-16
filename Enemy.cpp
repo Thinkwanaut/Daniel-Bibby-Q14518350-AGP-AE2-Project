@@ -35,13 +35,22 @@ bool Enemy::IsDead()
 	return m_Health <= 0;
 }
 
-GameObject* Enemy::SpawnKey()
+GameObject* Enemy::SpawnKey(bool addParticles)
 {
 	GameObject* newKey = new GameObject(mp_D3DDevice, mp_ImmediateContext, mp_Assets, m_KeyModel, m_KeyTexture, (char*)"shaders.hlsl");
 	newKey->SetCollisionType(ColliderShape::Box);
 	newKey->SetPos(GetPos());
 	newKey->SetScale(m_KeySize, m_KeySize, m_KeySize);
 	newKey->SetRot(0.0f, m_yRot, m_zRot);
-	newKey->SetColour({ 1, 1, 0, 1 });
+	newKey->SetTint({ 1.0f, 0.0f, 0.0f, 1.0f });
+	newKey->AddTintCycle({ 1.0f, 1.0f, 0.0f, 1.0f });
+	newKey->AddTintCycle({ 0.0f, 1.0f, 0.0f, 1.0f });
+	newKey->AddTintCycle({ 0.0f, 1.0f, 1.0f, 1.0f });
+	newKey->AddTintCycle({ 0.0f, 0.0f, 1.0f, 1.0f });
+	newKey->AddTintCycle({ 1.0f, 0.0f, 1.0f, 1.0f });
+	newKey->SetCycleTime(0.5f);
+
+	if (addParticles) newKey->MakeParticles(Presets::KEY);
+
 	return newKey;
 }

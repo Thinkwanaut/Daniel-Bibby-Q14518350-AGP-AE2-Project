@@ -6,7 +6,7 @@ class Enemy :
 {
 private:
     float m_Speed{ 0.05f }, m_Size{ 3.0f }, m_KeySize{ 2.0f }, m_FlashTime{ 0.1f };
-    XMVECTOR m_FlashCol{ 1.0f, 0.0f, 0.0f, 1.0f }, m_DefaultCol{};
+    XMFLOAT4 m_FlashCol{ 1.0f, 0.0f, 0.0f, 1.0f }, m_DefaultCol{};
     int m_Health{ 10 };
 
     char* m_KeyModel = nullptr;
@@ -23,6 +23,6 @@ public:
     void GetHit(int damage = 1);
     bool IsDead();
 
-    GameObject* SpawnKey();
+    GameObject* SpawnKey(bool addParticles = true);
 };
 

@@ -5,7 +5,8 @@ Bullet::Bullet(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager*
 {
 	SetScale(m_Size, m_Size, m_Size);
 	SetCollisionType(ColliderShape::Box);
-	SetColour({ 0, 1.0f, 1.0f, 1.0f });
+	XMFLOAT3 col = Normalise3D({ Random01(), Random01(), Random01() });
+	SetTint({ col.x, col.y, col.z, 1.0f });
 }
 
 void Bullet::Shoot(XMFLOAT3 start, XMFLOAT3 target, float speed, int damage, float range, bool throughEnemies)
@@ -21,10 +22,10 @@ void Bullet::Shoot(XMFLOAT3 start, XMFLOAT3 target, float speed, int damage, flo
 	m_ThroughEnemies = throughEnemies;
 }
 
-bool Bullet::Move(std::vector<GameObject*> Obstacles, std::vector<Enemy*> enemies, int* index, float adjust, bool sweepDetection)
+bool Bullet::Move(std::vector<GameObject*> Obstacles, std::vector<Enemy*> enemies, int* index, float adjust, bool sweptDetection)
 {
 	m_Hit = false;
-	float sweep = (sweepDetection && enemies.size() > 0) ? enemies[0]->GetScale().z : m_Speed * adjust;
+	float sweep = (sweptDetection && enemies.size() > 0) ? enemies[0]->GetScale().z : m_Speed * adjust;
 	float moved = 0.0f;
 
 	// Move bullets in smaller increments (no greater than enemy size) so that they do not pass over enemies in a single frame

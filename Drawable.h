@@ -8,6 +8,8 @@
 #include "DirectionalLight.h"
 #include "AssetManager.h"
 #include "PointLight.h"
+#include "Timer.h"
+#include "MoreMaths.h"
 
 using namespace DirectX;
 class Drawable
@@ -29,7 +31,11 @@ protected:
 	float m_xRot{ 0 }, m_yRot{ 0 }, m_zRot{ 0 };
 	float m_xScale{ 1 }, m_yScale{ 1 }, m_zScale{ 1 };
 
-	XMVECTOR m_Tint{ 0, 0, 0, 1 }, m_AddedColour{ 0, 0, 0, 0 };
+	std::vector<XMFLOAT4> m_Tint{ { 0, 0, 0, 1 } };
+	XMFLOAT4 m_AddedColour{ 0, 0, 0, 0 };
+	float m_ColourDuration{ 1.0f };
+
+	Timer* mp_Timer = nullptr;
 
 public:
 	Drawable(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager* assets, char* texture, char* shader);
@@ -41,6 +47,8 @@ public:
 	XMFLOAT3 GetRot();
 	XMFLOAT3 GetScale();
 
+	XMFLOAT4 GetTint();
+	
 	void SetX(float x);
 	void SetY(float y);
 	void SetZ(float z);
@@ -52,9 +60,11 @@ public:
 	void SetPos(XMFLOAT3 pos);
 	void SetRot(XMFLOAT3 rot);
 	void SetScale(XMFLOAT3 scale);
-	void SetColour(XMVECTOR colour);
+	void SetTint(XMFLOAT4 colour, int index = 0);
+	void AddTintCycle(XMFLOAT4 colour);
+	void SetCycleTime(float time);
 
-	void AddColour(XMVECTOR colour);
+	void SetColourOverlay(XMFLOAT4 colour);
 
 	void LookAt_XZ(float x, float z);
 	void LookAt(float x, float y, float z);

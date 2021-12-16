@@ -84,6 +84,11 @@ GameObject::~GameObject()
 		delete mp_SphereCollider;
 		mp_SphereCollider = nullptr;
 	}
+	if (mp_Particles)
+	{
+		delete mp_Particles;
+		mp_Particles = nullptr;
+	}
 }
 
 bool GameObject::CheckCollision(std::vector<GameObject*> others)
@@ -256,21 +261,10 @@ void GameObject::SetCollisionType(ColliderShape shape)
 	m_collisionType = shape;
 }
 
-void GameObject::MakeParticles()
+void GameObject::MakeParticles(Presets type)
 {
 	mp_Particles = new ParticleGenerator(mp_D3DDevice, mp_ImmediateContext, mp_Assets, (char*)"BoxTexture.bmp", (char*)"particleShaders.hlsl");
-	mp_Particles->SetColour({ 1.f, 1.f, 0.f, 1.0f });
-	mp_Particles->AddColour({ 1.0f, .0f, 0.0f, 1.0f });
-	mp_Particles->AddColour({ 0.0f, 0.0f, 0.0f, 0.0f });
-	//mp_Particles->AddColour({ 0.0f, 1.0f, 1.0f, 1.0f });
-	//mp_Particles->AddColour({ 0.0f, 0.0f, 1.0f, 1.0f });
-	//mp_Particles->AddColour({ 1.0f, 0.0f, 1.0f, 1.0f });
-	mp_Particles->SetSize({ 0.1f, 2.0f, 0.1f });
-	mp_Particles->SetVelocity( { 0.0f, 0.02f, 0.0f }, 0.0f);
-	mp_Particles->SetNumber(200);
-	mp_Particles->SetInterval(0.005f);
-	mp_Particles->SetLifetime(1.f);
-	mp_Particles->SetGravity(0.0f);
+	mp_Particles->SetPreset(type);
 }
 
 void GameObject::StartParticles()
@@ -283,13 +277,13 @@ void GameObject::SetParticles(bool active, bool clearActive)
 	if (mp_Particles) mp_Particles->SetActive(active, clearActive);
 }
 
-void GameObject::UpdateParticles(XMMATRIX view, XMMATRIX projection, XMFLOAT3 camPos, float adjust)
+void GameObject::UpdateParticles(XMMATRIX view, XMMATRIX projection, XMFLOAT3 camPos, float adjust, bool catchUp)
 {
 	if (mp_Particles)
 	{
 		mp_Particles->SetPos(m_x, m_y, m_z);
 		mp_Particles->SetScale(m_xScale, m_yScale, m_zScale);
-		mp_Particles->UpdateParticles(adjust);
+		mp_Particles->UpdateParticles(adjust, catchUp);
 		mp_Particles->Draw(view, projection, camPos);
 	}
 }
@@ -444,7 +438,7 @@ void GameObject::UpdateConstantBuffer(XMMATRIX view, XMMATRIX projection, Light*
 	MODEL_BUFFER cb{};
 
 	cb.WorldViewProjection = world * view * projection;
-	cb.tint_colour = m_Tint;
+	cb.tint_colour = GetTint();
 	cb.added_colour = m_AddedColour;
 	cb.ambient_light_colour = (ambient) ? ambient->Colour() : XMVECTOR({ 0.5f, 0.5f, 0.5f, 1 });
 	cb.directional_light_colour = (directional) ? directional->Colour() : XMVECTOR({ 0, 0, 0, 1 });

@@ -17,6 +17,12 @@ ParticleGenerator::~ParticleGenerator()
 	if (mp_RasterSolid) mp_RasterSolid->Release();
 	if (mp_RasterCullBack) mp_RasterCullBack->Release();
 	if (mp_VertexBuffer) mp_VertexBuffer->Release();
+
+	if (mp_Timer)
+	{
+		delete mp_Timer;
+		mp_Timer = nullptr;
+	}
 }
 
 HRESULT ParticleGenerator::CreateParticle()
@@ -57,6 +63,40 @@ void ParticleGenerator::ClearParticles()
 
 	for (Particle* ap : mp_Alive) delete ap;
 	mp_Alive.clear();
+}
+
+void ParticleGenerator::SetPreset(Presets type)
+{
+	m_Colours.clear();
+	switch (type)
+	{
+	case Presets::FIRE:
+		AddColour({ 1.f, 1.f, 0.f, 1.0f });
+		AddColour({ 1.0f, .0f, 0.0f, 1.0f });
+		AddColour({ 0.0f, 0.0f, 0.0f, 0.0f });
+		SetSize({ 0.1f, 2.0f, 0.1f });
+		SetVelocity({ 0.0f, 0.02f, 0.0f }, 0.0f);
+		SetNumber(200);
+		SetInterval(0.005f);
+		SetLifetime(1.f);
+		SetGravity(0.0f);
+		break;
+
+	case Presets::KEY:
+		AddColour({ 1.f, 1.f, 1.f, 1.0f });
+		AddColour({ 1.0f, 1.0f, 1.0f, 0.0f });
+		SetSize({ 0.25f, 0.25f, 0.25f });
+		SetVelocity({ 0.0f, 0.0f, 0.0f }, 0.025f);
+		SetAcceleration({ 0.9975f, 0.9975f, 0.9975f });
+		SetNumber(50);
+		SetInterval(0.02f);
+		SetLifetime(1.f);
+		SetGravity(0.0f);
+		SetRandSpawn(false, false, false);
+		break;
+	default:
+		break;
+	}
 }
 
 void ParticleGenerator::SetActive(bool active, bool clearActive)
@@ -163,13 +203,24 @@ void ParticleGenerator::SetGravity(float grav)
 	m_Grav = grav;
 }
 
+void ParticleGenerator::SetRandSpawn(bool x, bool y, bool z)
+{
+	m_RandSpawn[0] = x;
+	m_RandSpawn[1] = y;
+	m_RandSpawn[2] = z;
+}
+
 void ParticleGenerator::SpawnParticle()
 {
 	if (mp_Dead.size() == 0 || !m_Active) return;
 
 	m_PIt = mp_Dead.begin();
 
-	(*m_PIt)->Pos = { m_x + RandomPN(m_xScale), m_y + RandomPN(m_yScale), m_z + RandomPN(m_zScale) };
+	(*m_PIt)->Pos = { m_x, m_y, m_z };
+	if (m_RandSpawn[0]) (*m_PIt)->Pos.x += RandomPN(m_xScale);
+	if (m_RandSpawn[1]) (*m_PIt)->Pos.y += RandomPN(m_yScale);
+	if (m_RandSpawn[2]) (*m_PIt)->Pos.z += RandomPN(m_zScale);
+
 	XMFLOAT3 velRand = Random3(0, m_VelRand);
 	(*m_PIt)->Vel = { m_BaseVelocity.x + velRand.x, m_BaseVelocity.y + velRand.y , m_BaseVelocity.z + velRand.z };
 	float sizeRand = RandomMultiplier(m_SizeRand);
@@ -192,11 +243,11 @@ void ParticleGenerator::SpawnParticle()
 	mp_Dead.pop_front();
 }
 
-void ParticleGenerator::UpdateParticles(float adjust)
+void ParticleGenerator::UpdateParticles(float adjust, bool catchUp)
 {
 	if (mp_Timer->GetTimer("Particle") > m_Interval)
 	{
-		for (int p = 0; p < floorf(mp_Timer->GetTimer("Particle") / m_Interval); p++) SpawnParticle();
+		for (int p = 0; p < (catchUp ? floorf(mp_Timer->GetTimer("Particle") / m_Interval) : 1); p++) SpawnParticle();
 		mp_Timer->StartTimer("Particle");
 	}
 

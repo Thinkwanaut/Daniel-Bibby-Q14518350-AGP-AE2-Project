@@ -36,6 +36,13 @@ enum class GameStates
 	END
 };
 
+const XMFLOAT4 RED{ 1.0f, 0.0f, 0.0f, 1.0f };
+const XMFLOAT4 YELLOW{ 1.0f, 1.0f, 0.0f, 1.0f };
+const XMFLOAT4 GREEN{ 0.0f, 1.0f, 0.0f, 1.0f };
+const XMFLOAT4 CYAN{ 0.0f, 1.0f, 1.0f, 1.0f };
+const XMFLOAT4 BLUE{ 0.0f, 0.0f, 1.0f, 1.0f };
+const XMFLOAT4 MAGENTA{ 1.0f, 0.0f, 1.0f, 1.0f };
+
 class Game
 {
 private:
@@ -44,6 +51,8 @@ private:
 	char* BOX_FILE = (char*)"Assets/BoxTexture.bmp";
 	char* STONE_FILE = (char*)"Assets/StoneTexture.bmp";
 	char* FLOOR_FILE = (char*)"Assets/FloorTexture.bmp";
+	char* FLOOR_COLUMN_FILE = (char*)"Assets/FloorTextureTall.bmp";
+	char* FLOOR_ROW_FILE = (char*)"Assets/FloorTextureWide.bmp";
 	char* FENCE_FILE = (char*)"Assets/Fence2.png";
 	char* SPIKE_FILE = (char*)"Assets/SpikeTexture.png";
 	char* ENEMY_FILE = (char*)"Assets/EnemyTexture.bmp";
@@ -79,7 +88,7 @@ private:
 
 	float m_SpeedAdjust{ 1.0f }, m_FrameGap{ 0.0f };
 
-	float m_BlockSize{ 10 }, m_FloorHeight{ -10 }, m_ObjectHeight{ 0 }, m_Gravity{ 0.001f }, m_SkyOffset{ 1 }, m_EnemyInterval{ 10.0f };
+	float m_BlockSize{ 10 }, m_FloorHeight{ -10 }, m_ObjectHeight{ 0 }, m_Gravity{ 0.001f }, m_SkyOffset{ 1 }, m_EnemyInterval{ 5.0f };
 
 	bool m_SingleFloor{ false }, m_DebugMode{ false };
 

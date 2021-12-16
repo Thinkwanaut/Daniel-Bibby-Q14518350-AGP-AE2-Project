@@ -217,7 +217,8 @@ std::vector<Bullet*> Player::Shoot(float gap)
 	std::vector<Bullet*> newBullets;
 	if (ShotReady())
 	{
-		int totalShots = m_Guns[m_GunIndex].ShotNum * ceilf(gap / m_Guns[m_GunIndex].ShotInterval); // Spawn delayed in single frame to account for lag
+		int totalShots = m_Guns[m_GunIndex].ShotNum;
+		if (gap > 0) totalShots *= ceilf(gap / m_Guns[m_GunIndex].ShotInterval); // Spawn delayed in single frame to account for lag
 		for (int s = 0; s < totalShots; s++)
 		{
 			float tx = mp_GunModel->GetX() + m_LookX * m_TargetDist + m_TargetDist * GetRandTarget();

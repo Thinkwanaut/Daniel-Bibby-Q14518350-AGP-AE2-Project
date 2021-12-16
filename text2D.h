@@ -29,10 +29,9 @@ struct VERTEX
 
 enum class Alignment
 {
-	Left,
-	Centre,
-	Right
+	Left, Centre, Right
 };
+
 // increase if more characters requird
 const int MAX_CHARACTERS = 10000;
 

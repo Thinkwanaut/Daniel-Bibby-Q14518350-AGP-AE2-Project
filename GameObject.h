@@ -66,10 +66,10 @@ public:
 	float GetPrevZ();
 	
 	void SetCollisionType(ColliderShape shape);
-	void MakeParticles();
+	void MakeParticles(Presets type);
 	void StartParticles();
 	void SetParticles(bool active, bool clearActive = false);
-	void UpdateParticles(XMMATRIX view, XMMATRIX projection, XMFLOAT3 camPos, float adjust = 1.0f);
+	void UpdateParticles(XMMATRIX view, XMMATRIX projection, XMFLOAT3 camPos, float adjust = 1.0f, bool catchUp = true);
 	void LookAtRelative(float x, float y, float z);
 	void MoveForward_XZ(float step, std::vector<GameObject*> others, float adjust = 1.0f);
 	void MoveForward(float step, float adjust = 1);

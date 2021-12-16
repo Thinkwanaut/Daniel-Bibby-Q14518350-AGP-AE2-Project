@@ -1,6 +1,10 @@
 #include "Game.h"
 Game::Game(_In_ HINSTANCE hInstance, _In_ int nCmdShow, Window* window)
 {
+#ifndef NDEBUG
+	m_DebugMode = true; // Use for optimisation options
+#endif
+
 	mp_Window = window;
 
 	mp_Timer = new Timer();
@@ -21,10 +25,6 @@ Game::Game(_In_ HINSTANCE hInstance, _In_ int nCmdShow, Window* window)
 	mp_2DText = new Text2D("Assets/myFont.png", mp_Window->Device(), mp_Window->Context());
 
 	SetLayout();
-
-#ifndef NDEBUG
-	m_DebugMode = true; // Use for optimisation options
-#endif
 }
 
 Game::~Game()
@@ -121,7 +121,7 @@ void Game::CreateLevel()
 	{
 		mp_Obstacles.push_back(new GameObject(mp_Window->Device(), mp_Window->Context(), mp_Assets, CUBE_FILE, FLOOR_FILE, SHADER_FILE));
 		mp_Obstacles[0]->SetPos(m_Layout[0].length() * m_BlockSize / 2.0f, m_FloorHeight, m_Layout.size() * m_BlockSize / 2.0f);
-		mp_Obstacles[0]->SetScale(m_Layout[0].length() * m_BlockSize / 2.0f, m_BlockSize, m_BlockSize * m_Layout.size() / 2.0f);
+		mp_Obstacles[0]->SetScale(m_Layout[0].length() * m_BlockSize / 2.0f, m_BlockSize / 2.0f, m_BlockSize * m_Layout.size() / 2.0f);
 		mp_Obstacles[0]->SetCollisionType(ColliderShape::Box);
 		mp_Obstacles[0]->SetFall(false);
 	}
@@ -129,6 +129,8 @@ void Game::CreateLevel()
 	for (int row = 0; row < m_Layout.size(); row++)
 	{
 		int z = m_BlockSize * row;
+		// Check if row string does not contain spike character
+		bool singleRow = m_DebugMode && m_Layout[row].find((char)ObjectTypes::SPIKES) == m_Layout[row].npos; 
 		for (int column = 0; column < m_Layout[0].length(); column++)
 		{
 			mp_Window->ResetContext();
@@ -156,7 +158,7 @@ void Game::CreateLevel()
 					mp_Spikes[index]->SetPos(x, (m_SingleFloor) ? m_ObjectHeight : m_FloorHeight, z);
 					mp_Spikes[index]->SetScale(m_BlockSize / 2.0f, m_BlockSize / 4.0f, m_BlockSize / 2.0f);
 					mp_Spikes[index]->SetCollisionType(ColliderShape::Box);
-					mp_Spikes[index]->MakeParticles();
+					if (!m_DebugMode) mp_Spikes[index]->MakeParticles(Presets::FIRE);
 					floorHeight -= m_BlockSize;
 					break;
 
@@ -171,7 +173,8 @@ void Game::CreateLevel()
 				case (int)ObjectTypes::ENEMY:
 					index = mp_Spawns.size();
 					mp_Spawns.push_back(new GameObject(mp_Window->Device(), mp_Window->Context(), mp_Assets, SPHERE_FILE, SPIKE_FILE, SHADER_FILE));
-					mp_Spawns[index]->SetColour({ 1, 0, 0, 1 });
+					mp_Spawns[index]->SetTint({ 1, 0, 0, 1 });
+					mp_Spawns[index]->AddTintCycle({ 1, 1, 0, 1 });
 					mp_Spawns[index]->SetScale(m_BlockSize / 2.0f, m_BlockSize / 2.0f, m_BlockSize / 2.0f);
 					mp_Spawns[index]->SetPos(x, m_ObjectHeight + abs(m_FloorHeight / 2.0f), z);
 					break;
@@ -188,7 +191,7 @@ void Game::CreateLevel()
 					break;
 				}
 			}
-			if (!m_SingleFloor)
+			if (!m_SingleFloor && !singleRow)
 			{
 				index = mp_Obstacles.size();
 				mp_Obstacles.push_back(new GameObject(mp_Window->Device(), mp_Window->Context(), mp_Assets, CUBE_FILE, FLOOR_FILE, SHADER_FILE));
@@ -219,6 +222,16 @@ void Game::CreateLevel()
 
 			if (mp_Input->KeyPressed(KEYS::ESC)) return;
 		}
+		if (!m_SingleFloor && singleRow)
+		{
+			int index = mp_Obstacles.size();
+			mp_Obstacles.push_back(new GameObject(mp_Window->Device(), mp_Window->Context(), mp_Assets, CUBE_FILE, FLOOR_ROW_FILE, SHADER_FILE));
+			mp_Obstacles[index]->SetPos(m_BlockSize* m_Layout[0].length() / 2.0f, m_FloorHeight, z);
+			mp_Obstacles[index]->SetScale(m_Layout[0].length() * m_BlockSize / 2.0f, m_BlockSize / 2.0f, m_BlockSize / 2.0f);
+			mp_Obstacles[index]->SetCollisionType(ColliderShape::Box);
+			mp_Obstacles[index]->SetFall(false);
+		}
+
 		if (row == 0 || row == m_Layout.size() - 1)
 		{
 			int index = mp_Obstacles.size();
@@ -228,7 +241,6 @@ void Game::CreateLevel()
 			mp_Obstacles[index]->SetCollisionType(ColliderShape::Box);
 			mp_Obstacles[index]->SetFall(false);
 		}
-
 	}
 
 	mp_Pushers.insert(mp_Pushers.end(), mp_Movables.begin(), mp_Movables.end());
@@ -303,12 +315,13 @@ void Game::MoveBullets()
 		int targetHit{ -1 };
 
 		// only sweep for enemies if not in debug as game will be running faster
-		bool destroyBullet = mp_Bullets[bulletCounter]->Move(mp_Blockers, mp_Enemies, &targetHit, m_SpeedAdjust, !m_DebugMode);
+		bool destroyBullet = mp_Bullets[bulletCounter]->Move(mp_Blockers, mp_Enemies, &targetHit, m_SpeedAdjust); // , !m_DebugMode); for additional optimisation
 		if (targetHit >= 0)
 		{
 			if (mp_Enemies[targetHit]->IsDead())
 			{
-				mp_Keys.push_back(mp_Enemies[targetHit]->SpawnKey());
+				int k = mp_Keys.size();
+				mp_Keys.push_back(mp_Enemies[targetHit]->SpawnKey(!m_DebugMode));
 				mp_Enemies.erase(std::begin(mp_Enemies) + targetHit); //Delete enemy the bullet has hit
 			}
 		}
@@ -438,7 +451,8 @@ void Game::Draw()
 	for (GameObject* k : mp_Keys) k->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
 	for (GameObject* m : mp_Movables) m->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
 	for (GameObject* s : mp_Spikes) s->Draw(mp_Player->GetViewMatrix(), projection, mp_ALight, mp_DLight);
-	for (GameObject* s : mp_Spikes) s->UpdateParticles(mp_Player->GetViewMatrix(), projection, mp_Player->GetPos(), m_SpeedAdjust);
+	for (GameObject* s : mp_Spikes) s->UpdateParticles(mp_Player->GetViewMatrix(), projection, mp_Player->GetPos(), m_SpeedAdjust, !m_DebugMode);
+	for (GameObject* k : mp_Keys) k->UpdateParticles(mp_Player->GetViewMatrix(), projection, mp_Player->GetPos(), m_SpeedAdjust, !m_DebugMode);
 
 	mp_Player->ShowHUD(projection, mp_ALight, mp_DLight);
 

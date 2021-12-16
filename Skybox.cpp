@@ -6,7 +6,7 @@ Skybox::Skybox(ID3D11Device* device, ID3D11DeviceContext* context, AssetManager*
 	CreateBuffer();
 	InitStates();
 
-	m_Tint = { 0.2f, 0.2f, 0.5f, 1.0f};
+	SetTint({ 0.2f, 0.2f, 0.5f, 1.0f });
 }
 
 Skybox::~Skybox()
@@ -69,7 +69,7 @@ void Skybox::UpdateConstantBuffer(XMMATRIX view, XMMATRIX projection, Light* amb
 
 	cb.WorldViewProjection = world * view * projection;
 	cb.light = (ambient) ? ambient->Colour() : XMVECTOR({ 0.5f, 0.5f, 0.5f, 1 });
-	cb.colour = m_Tint;
+	cb.colour = GetTint();
 	mp_ImmediateContext->UpdateSubresource(mp_ConstantBuffer, 0, 0, &cb, 0, 0);
 }
 

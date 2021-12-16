@@ -14,8 +14,8 @@ using namespace DirectX;
 struct MODEL_BUFFER
 {
 	XMMATRIX WorldViewProjection;
-	XMVECTOR tint_colour;
-	XMVECTOR added_colour;
+	XMFLOAT4 tint_colour;
+	XMFLOAT4 added_colour;
 	XMVECTOR directional_light_vector;
 	XMVECTOR directional_light_colour;
 	XMVECTOR ambient_light_colour;
@@ -26,7 +26,7 @@ struct MODEL_BUFFER
 struct SKYBOX_BUFFER
 {
 	XMMATRIX WorldViewProjection;
-	XMVECTOR colour;
+	XMFLOAT4 colour;
 	XMVECTOR light;
 };
 
