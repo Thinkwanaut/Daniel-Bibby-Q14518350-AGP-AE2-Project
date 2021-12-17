@@ -379,6 +379,12 @@ void Game::Update()
 	mp_Input->ReadInputStates();
 	mp_Window->ResetContext();
 
+	if (!InGame())
+	{
+		if (mp_Input->KeyPressed(KEYS::ESC)) mp_Window->Destroy();
+		else if (mp_Input->AnyPressed()) CreateLevel();
+	}
+
 	switch(m_State)
 	{
 	case GameStates::PLAY:
@@ -403,6 +409,7 @@ void Game::Update()
 		Draw();
 		if (mp_Player->Dead() || mp_Player->Won()) m_State = GameStates::END;
 		else if (mp_Input->KeyPressed(KEYS::P)) m_State = GameStates::PAUSE;
+		else if (mp_Input->KeyPressed(KEYS::ESC)) m_State = GameStates::MENU;
 		break;
 
 	case GameStates::PAUSE:
@@ -432,8 +439,6 @@ void Game::Update()
 		mp_Window->Clear();
 		mp_2DText->RenderText();
 		mp_Window->Present();
-
-		if (mp_Input->AnyPressed() && !InGame()) CreateLevel();
 	}
 }
 

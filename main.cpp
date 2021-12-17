@@ -46,9 +46,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (g_pWindow) g_pWindow->Resize(LOWORD(lParam), HIWORD(lParam));
 		break;
 
-	case WM_KEYDOWN:
+	/*case WM_KEYDOWN:
 		if (wParam == VK_ESCAPE) DestroyWindow(hWnd);
-		break;
+		break;*/
 
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);

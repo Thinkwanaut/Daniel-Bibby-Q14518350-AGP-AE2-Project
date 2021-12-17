@@ -89,6 +89,11 @@ HINSTANCE Window::HInst()
 	return m_hInst;
 }
 
+void Window::Destroy()
+{
+	DestroyWindow(m_hWnd);
+}
+
 HWND Window::HWnd()
 {
 	return m_hWnd;

@@ -49,6 +49,8 @@ public:
 	HRESULT InitialiseGraphics();
 	HRESULT Resize(int width, int height);
 
+	void Destroy();
+
 	HINSTANCE HInst();
 	HWND HWnd();
 
