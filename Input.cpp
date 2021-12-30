@@ -1,21 +1,5 @@
 #include "Input.h"
 
-std::map<KEYS, unsigned char> KeyMap
-{
-	{KEYS::A, DIK_A}, {KEYS::B, DIK_B}, {KEYS::C, DIK_C}, {KEYS::D, DIK_D}, {KEYS::E, DIK_E}, {KEYS::F, DIK_F}, {KEYS::G, DIK_G}, {KEYS::H, DIK_H}, {KEYS::I, DIK_I},
-	{KEYS::J, DIK_J}, {KEYS::K, DIK_K}, {KEYS::L, DIK_L}, {KEYS::M, DIK_M}, {KEYS::N, DIK_N}, {KEYS::O, DIK_O}, {KEYS::P, DIK_P}, {KEYS::Q, DIK_Q}, {KEYS::R, DIK_R},
-	{KEYS::S, DIK_S}, {KEYS::T, DIK_T}, {KEYS::U, DIK_U}, {KEYS::V, DIK_V}, {KEYS::W, DIK_W}, {KEYS::X, DIK_X}, {KEYS::Y, DIK_Y}, {KEYS::Z, DIK_Z},
-
-	{KEYS::N0, DIK_0}, {KEYS::N1, DIK_1}, {KEYS::N2, DIK_2}, {KEYS::N3, DIK_3}, {KEYS::N4, DIK_4},
-	{KEYS::N5, DIK_5}, {KEYS::N6, DIK_6}, {KEYS::N7, DIK_7}, {KEYS::N8, DIK_8}, {KEYS::N9, DIK_9},
-	{KEYS::NP0, DIK_NUMPAD0}, {KEYS::NP1, DIK_NUMPAD1}, {KEYS::NP2, DIK_NUMPAD2}, {KEYS::NP3, DIK_NUMPAD3}, {KEYS::NP4, DIK_NUMPAD4},
-	{KEYS::NP5, DIK_NUMPAD5}, {KEYS::NP6, DIK_NUMPAD6}, {KEYS::NP7, DIK_NUMPAD7}, {KEYS::NP8, DIK_NUMPAD8}, {KEYS::NP9, DIK_NUMPAD9},
-
-	{KEYS::ESC, DIK_ESCAPE}, {KEYS::LSHIFT, DIK_LSHIFT}, {KEYS::RSHIFT, DIK_RSHIFT}, {KEYS::SPACE, DIK_SPACE},
-	{KEYS::LCTRL, DIK_LCONTROL}, {KEYS::RCTRL, DIK_RCONTROL}, {KEYS::ENTER, DIK_RETURN}, {KEYS::NUMENTER, DIK_NUMPADENTER}
-
-};
-
 Input::Input(HINSTANCE hInst, HWND hWnd, HRESULT* result)
 {
 	*result = InitialiseInput(hInst, hWnd);
@@ -92,17 +76,17 @@ bool Input::AnyPressed()
 
 bool Input::KeyHeld(KEYS key)
 {
-	return (m_keyboardKeyStates[KeyMap[key]] & 0x80); // && (m_keyboardPrevKeyStates[KeyMap[key]] & 0x80)
+	return (m_keyboardKeyStates[(unsigned char)key] & 0x80); // && (m_keyboardPrevKeyStates[KeyMap[key]] & 0x80)
 }
 
 bool Input::KeyPressed(KEYS key)
 {
-	return (m_keyboardKeyStates[KeyMap[key]] & 0x80) && !(m_keyboardPrevKeyStates[KeyMap[key]] & 0x80);
+	return (m_keyboardKeyStates[(unsigned char)key] & 0x80) && !(m_keyboardPrevKeyStates[(unsigned char)key] & 0x80);
 }
 
 bool Input::KeyReleased(KEYS key)
 {
-	return !(m_keyboardKeyStates[KeyMap[key]] & 0x80) && (m_keyboardPrevKeyStates[KeyMap[key]] & 0x80);
+	return !(m_keyboardKeyStates[(unsigned char)key] & 0x80) && (m_keyboardPrevKeyStates[(unsigned char)key] & 0x80);
 }
 
 bool Input::MouseButtonHeld(MOUSE button)

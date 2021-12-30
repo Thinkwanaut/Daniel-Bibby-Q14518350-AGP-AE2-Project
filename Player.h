@@ -66,6 +66,7 @@ public:
 	float GetRandTarget();
 	void SetGun(Input* input); 
 	std::vector<Bullet*> Shoot(float gap = -1.0f);
+	void ShowHit();
 
 	void SpikeCheck(std::vector<GameObject*> spikes);
 	int EnemyCheck(std::vector<Enemy*> enemies);

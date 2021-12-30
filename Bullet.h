@@ -1,5 +1,4 @@
 #pragma once
-#include "GameObject.h"
 #include "Enemy.h"
 
 class Bullet :

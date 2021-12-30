@@ -318,6 +318,7 @@ void Game::MoveBullets()
 		bool destroyBullet = mp_Bullets[bulletCounter]->Move(mp_Blockers, mp_Enemies, &targetHit, m_SpeedAdjust); // , !m_DebugMode); for additional optimisation
 		if (targetHit >= 0)
 		{
+			mp_Player->ShowHit();
 			if (mp_Enemies[targetHit]->IsDead())
 			{
 				int k = mp_Keys.size();

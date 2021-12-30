@@ -65,10 +65,10 @@ void Player::Move(Input* input, std::vector<GameObject*> obstacles, float floorH
 		XMFLOAT2 moveVec{ 0, 0 };
 		float sprint{ 1 };
 
-		if (input->KeyHeld(KEYS::W)) moveVec.x = 1;
-		if (input->KeyHeld(KEYS::S)) moveVec.x -= 1;
-		if (input->KeyHeld(KEYS::D)) moveVec.y = 1;
-		if (input->KeyHeld(KEYS::A)) moveVec.y -= 1;
+		if (input->KeyHeld(KEYS::W) || input->KeyHeld(KEYS::UP)) moveVec.x = 1;
+		if (input->KeyHeld(KEYS::S) || input->KeyHeld(KEYS::DOWN)) moveVec.x -= 1;
+		if (input->KeyHeld(KEYS::D) || input->KeyHeld(KEYS::RIGHT)) moveVec.y = 1;
+		if (input->KeyHeld(KEYS::A) || input->KeyHeld(KEYS::LEFT)) moveVec.y -= 1;
 		if (input->KeyPressed(KEYS::SPACE)) Jump();
 
 		if (input->KeyHeld(KEYS::LSHIFT) || input->KeyHeld(KEYS::RSHIFT)) sprint *= m_Sprint;
@@ -182,6 +182,7 @@ bool Player::ShotReady()
 
 float Player::GetRandTarget()
 {
+	// 1 += accuracy
 	float accuracy = m_Zoomed ? m_Guns[m_GunIndex].ZoomAccuracy : m_Guns[m_GunIndex].HipAccuracy;
 	return RandomPN(1.0f - accuracy);
 }
@@ -189,11 +190,13 @@ float Player::GetRandTarget()
 void Player::SetGun(Input* input)
 {
 	int cycle = input->MouseWheel();
+	if (input->KeyPressed(KEYS::E)) cycle--;
+	if (input->KeyPressed(KEYS::Q)) cycle++;
 	if (cycle != 0)
 	{
-		m_GunIndex += (cycle > 0) ? -1 : 1;
+		m_GunIndex += (cycle > 0) ? -1 : 1; // Reverse registered scroll wheel direction, ignore magnitudes greater than 1
 
-		// Cast size to int as data type normally returned cannot be compared to negatives properly i.e., negative numbers are greater than it
+		// Cast size to int as size_t cannot be compared to negatives properly i.e., negative numbers are greater than it
 		if (m_GunIndex >= (int)m_Guns.size()) m_GunIndex %= m_Guns.size();
 		else if (m_GunIndex < 0) m_GunIndex -= m_Guns.size() * (int)floorf((float)m_GunIndex / (float)m_Guns.size());
 	}
@@ -235,6 +238,11 @@ std::vector<Bullet*> Player::Shoot(float gap)
 	}
 
 	return newBullets;
+}
+
+void Player::ShowHit()
+{
+	mp_Timer->StartTimer("Indicator");
 }
 
 void Player::SpikeCheck(std::vector<GameObject*> spikes)
@@ -357,6 +365,9 @@ void Player::ShowHUD(XMMATRIX projection, Light* ambient, DirectionalLight* dire
 
 	//Will use text for basic UI images
 	mp_2DText->AddText(m_Zoomed ? m_Guns[m_GunIndex].ZoomCrosshair : m_Guns[m_GunIndex].HipCrosshair, 0.0f, 0.0f, 0.1f, { 0.0f, 1.0f, 0.0f, m_Zoomed ? 0.9f : 0.5f }, Alignment::Centre);
+	if (0 < mp_Timer->GetTimer("Indicator") && mp_Timer->GetTimer("Indicator") < m_FlashTime / 2.0f)
+		mp_2DText->AddText("><", 0.0f, 0.0f, 0.1f, { 1.0f, 1.0f, 0.0f, 0.75f }, Alignment::Centre);
+	
 	mp_2DText->AddText("HP-" + std::to_string((int)m_Health), -0.9f, 0.9f, 0.05f, m_HealthColour);
 	mp_2DText->AddText("Score-" + std::to_string(m_Score) + "/" + std::to_string(m_MaxScore), -0.9f, 0.8f, 0.05f, m_ScoreColour);
 	mp_2DText->AddText("Spikes-" + std::to_string(m_SpikeScore) + "/" + std::to_string(m_MaxSpikes), -0.9f, 0.7f, 0.05f, m_SpikeColour);
