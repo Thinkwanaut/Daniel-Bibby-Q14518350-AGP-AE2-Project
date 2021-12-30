@@ -287,7 +287,7 @@ void Game::MovePlayer()
 {
 	mp_Player->Move(mp_Input, mp_Obstacles, m_FloorHeight, m_Gravity, m_SpeedAdjust);
 	mp_Player->SetGun(mp_Input);
-	if (mp_Input->MouseButtonHeld(MOUSE::LCLICK))
+	if (mp_Input->MouseButtonHeld(MOUSE::LCLICK) || mp_Input->PadAxis(AXIS::RTRIGGER) != 0.0f)
 	{
 		std::vector<Bullet*> newBullets = mp_Player->Shoot(m_FrameGap);
 		mp_Bullets.insert(mp_Bullets.begin(), newBullets.begin(), newBullets.end());
@@ -362,6 +362,7 @@ XMMATRIX Game::XYZRotation(float x, float y, float z)
 
 void Game::SpawnEnemies()
 {
+	return;
 	for (GameObject* spawn : mp_Spawns)
 	{
 		int index = mp_Enemies.size();
@@ -382,7 +383,7 @@ void Game::Update()
 
 	if (!InGame())
 	{
-		if (mp_Input->KeyPressed(KEYS::ESC)) mp_Window->Destroy();
+		if (mp_Input->KeyPressed(KEYS::ESC) || mp_Input->PadButtonPressed(PAD::BACK)) mp_Window->Destroy();
 		else if (mp_Input->AnyPressed()) CreateLevel();
 	}
 
@@ -409,14 +410,14 @@ void Game::Update()
 		mp_Skybox->SetPos(camPos.x, camPos.y + m_SkyOffset, camPos.z);
 		Draw();
 		if (mp_Player->Dead() || mp_Player->Won()) m_State = GameStates::END;
-		else if (mp_Input->KeyPressed(KEYS::P)) m_State = GameStates::PAUSE;
-		else if (mp_Input->KeyPressed(KEYS::ESC)) m_State = GameStates::MENU;
+		else if (mp_Input->KeyPressed(KEYS::P) || mp_Input->PadButtonPressed(PAD::START)) m_State = GameStates::PAUSE;
+		else if (mp_Input->KeyPressed(KEYS::ESC) || mp_Input->PadButtonPressed(PAD::BACK)) m_State = GameStates::MENU;
 		break;
 
 	case GameStates::PAUSE:
 		mp_2DText->AddText("PAUSED", 0, 0, .15, { 0, 0, 0, 1 }, Alignment::Centre);
 		mp_2DText->AddText("PRESS-P-TO-RESUME", 0, -.25, .05, { 0, 0, 0, 1 }, Alignment::Centre);
-		if (mp_Input->KeyPressed(KEYS::P)) m_State = GameStates::PLAY;
+		if (mp_Input->KeyPressed(KEYS::P) || mp_Input->PadButtonPressed(PAD::START)) m_State = GameStates::PLAY;
 		break;
 
 	case GameStates::END:

@@ -1,5 +1,6 @@
 #pragma once
 #include <dinput.h>
+#include <Xinput.h>
 #include<map>
 
 enum class KEYS
@@ -20,7 +21,20 @@ enum class MOUSE
 	LCLICK, RCLICK, MCLICK, BUTTONS
 };
 
-const int NUM_KEYS = 256;
+enum class PAD
+{
+	UP = XINPUT_GAMEPAD_DPAD_UP, DOWN = XINPUT_GAMEPAD_DPAD_DOWN, LEFT = XINPUT_GAMEPAD_DPAD_LEFT, RIGHT = XINPUT_GAMEPAD_DPAD_RIGHT,
+	START = XINPUT_GAMEPAD_START, BACK = XINPUT_GAMEPAD_BACK, LSTICK = XINPUT_GAMEPAD_LEFT_THUMB, RSTICK = XINPUT_GAMEPAD_RIGHT_THUMB,
+	LBUMPER = XINPUT_GAMEPAD_LEFT_SHOULDER, RBUMPER = XINPUT_GAMEPAD_RIGHT_SHOULDER,
+	A = XINPUT_GAMEPAD_A, B = XINPUT_GAMEPAD_B, X = XINPUT_GAMEPAD_X, Y = XINPUT_GAMEPAD_Y,
+};
+
+enum class AXIS
+{
+	LTRIGGER, RTRIGGER, LX, LY, RX, RY, AXES
+};
+
+const int NUM_KEYS = 256, AXIS_MAX = 32767, TRIGGER_MAX = 255;
 
 class Input
 {
@@ -31,8 +45,11 @@ private:
 	unsigned char m_keyboardPrevKeyStates[NUM_KEYS];
 
 	IDirectInputDevice8* mp_MouseDevice = nullptr;
-	DIMOUSESTATE m_mouseState;
-	DIMOUSESTATE m_mousePrevState;
+	DIMOUSESTATE m_mouseState, m_mousePrevState;
+
+	XINPUT_STATE m_padState, m_padPrevState;
+
+	bool m_keysConnected{ false }, m_mouseConnected{ false }, m_padConnected{ false };
 
 public:
 	Input(HINSTANCE hInst, HWND hWnd, HRESULT* result);
@@ -47,8 +64,12 @@ public:
 	bool MouseButtonHeld(MOUSE button);
 	bool MouseButtonPressed(MOUSE button);
 	bool MouseButtonReleased(MOUSE button);
+	bool PadButtonHeld(PAD button);
+	bool PadButtonPressed(PAD button);
+	bool PadButtonReleased(PAD button);
 	float MouseRelX();
 	float MouseRelY();
 	int MouseWheel();
+	float PadAxis(AXIS axis, float deadZoneMult = 1.0f );
 };
 

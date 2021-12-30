@@ -25,7 +25,7 @@ class Player : public GameObject
 {
 private:
 	float m_dx{ 0 }, m_dy{ 0 }, m_dz{ 1.0f }, m_CamRotX{ 0 }, m_CamRotY{ 0 }, m_AngleClamp{ 89.9f }, m_LookX{ 0 }, m_LookZ{ 1.0f };
-	float m_speed{ 0.05f }, m_JumpSpeed{ .25f }, m_Sprint{ 2.0 };
+	float m_speed{ 0.05f }, m_JumpSpeed{ .25f }, m_Sprint{ 2.0 }, m_StickLookSensitivity{ 0.5f }, m_StickDeadMult{ 0.5f };
 	XMVECTOR m_position{ 0.0f, 0.0f, 0.0f, 0.0f }, m_lookAt{ 0.0f, 0.0f, 0.0f, 0.0f }, m_up{ 0.0f, 1.0f, 0.0f, 0.0f };
 	XMFLOAT3 m_HipOffset{ 2.0f, 3.0f, 3.0f }, m_ZoomOffset{ 0.5f, 1.5f, 3.0f };
 	XMFLOAT4 m_DefaultTextColour{ 1.0f, 1.0f, 1.0f, 0.7f };

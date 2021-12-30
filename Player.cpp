@@ -55,25 +55,29 @@ Player::~Player()
 
 void Player::Move(Input* input, std::vector<GameObject*> obstacles, float floorHeight, float grav, float adjust)
 {
-	AddYRot(input->MouseRelX());
-	AddXRot(-input->MouseRelY());
+	AddYRot(input->MouseRelX() + input->PadAxis(AXIS::RX, m_StickDeadMult) * m_StickLookSensitivity * adjust);
+	AddXRot(-input->MouseRelY() + input->PadAxis(AXIS::RY, m_StickDeadMult) * m_StickLookSensitivity * adjust);
 
 	m_Thrown = m_Thrown && !m_Grounded;
 
 	if (!m_Thrown)
 	{
-		XMFLOAT2 moveVec{ 0, 0 };
 		float sprint{ 1 };
+		XMFLOAT2 moveVec{ input->PadAxis(AXIS::LY, m_StickDeadMult), input->PadAxis(AXIS::LX, m_StickDeadMult) };
+		float axisMag = min(powf(powf(moveVec.x, 2.0f) + powf(moveVec.y, 2.0f), 0.5f), 1);	// Used for smaller movements i.e. axis not fully pushed
+																							// Capped to 1 to retain normalised value
 
-		if (input->KeyHeld(KEYS::W) || input->KeyHeld(KEYS::UP)) moveVec.x = 1;
+		if (input->KeyHeld(KEYS::W) || input->KeyHeld(KEYS::UP)) moveVec.x += 1;
 		if (input->KeyHeld(KEYS::S) || input->KeyHeld(KEYS::DOWN)) moveVec.x -= 1;
-		if (input->KeyHeld(KEYS::D) || input->KeyHeld(KEYS::RIGHT)) moveVec.y = 1;
+		if (input->KeyHeld(KEYS::D) || input->KeyHeld(KEYS::RIGHT)) moveVec.y += 1;
 		if (input->KeyHeld(KEYS::A) || input->KeyHeld(KEYS::LEFT)) moveVec.y -= 1;
-		if (input->KeyPressed(KEYS::SPACE)) Jump();
+		if (input->KeyPressed(KEYS::SPACE) || input->PadButtonPressed(PAD::A)) Jump();
 
-		if (input->KeyHeld(KEYS::LSHIFT) || input->KeyHeld(KEYS::RSHIFT)) sprint *= m_Sprint;
+		if (input->KeyHeld(KEYS::LSHIFT) || input->KeyHeld(KEYS::RSHIFT) || input->PadButtonHeld(PAD::LSTICK)) sprint *= m_Sprint;
 
 		moveVec = Normalise2D(moveVec);
+
+		if (axisMag != 0) { moveVec.x *= axisMag; moveVec.y *= axisMag; }
 
 		if (moveVec.x != 0) Forward(moveVec.x * sprint * adjust, obstacles);
 		if (moveVec.y != 0) Strafe(moveVec.y * sprint * adjust, obstacles);
@@ -190,8 +194,8 @@ float Player::GetRandTarget()
 void Player::SetGun(Input* input)
 {
 	int cycle = input->MouseWheel();
-	if (input->KeyPressed(KEYS::E)) cycle--;
-	if (input->KeyPressed(KEYS::Q)) cycle++;
+	if (input->KeyPressed(KEYS::E) || input->PadButtonPressed(PAD::RBUMPER) || input->PadButtonPressed(PAD::Y)) cycle--;
+	if (input->KeyPressed(KEYS::Q) || input->PadButtonPressed(PAD::LBUMPER)) cycle++;
 	if (cycle != 0)
 	{
 		m_GunIndex += (cycle > 0) ? -1 : 1; // Reverse registered scroll wheel direction, ignore magnitudes greater than 1
@@ -201,7 +205,7 @@ void Player::SetGun(Input* input)
 		else if (m_GunIndex < 0) m_GunIndex -= m_Guns.size() * (int)floorf((float)m_GunIndex / (float)m_Guns.size());
 	}
 
-	m_Zoomed = input->MouseButtonHeld(MOUSE::RCLICK);
+	m_Zoomed = input->MouseButtonHeld(MOUSE::RCLICK) || input->PadAxis(AXIS::LTRIGGER) != 0.0f;
 
 	XMFLOAT3 offset = (m_Zoomed) ? m_ZoomOffset : m_HipOffset;
 
