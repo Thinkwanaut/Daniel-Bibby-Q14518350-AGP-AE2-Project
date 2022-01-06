@@ -427,11 +427,12 @@ void Game::Update()
 	case GameStates::MENU:
 		mp_2DText->AddText("AE2", 0, 0, .15, { 0, 0, 0, 1 }, Alignment::Centre);
 		mp_2DText->AddText("PRESS-ANY-KEY-TO-PLAY", 0, -.25, .05, { 0, 0, 0, 1 }, Alignment::Centre);
-		mp_2DText->AddText("W/A/S/D -     MOVE", -0.95, 0.9, 0.035, { 0, 0, 0, 1 });
-		mp_2DText->AddText("SHIFT   -   SPRINT", -0.95, 0.83, 0.035, { 0, 0, 0, 1 });
-		mp_2DText->AddText("L-CLICK -    SHOOT", -0.95, 0.76, 0.035, { 0, 0, 0, 1 });
-		mp_2DText->AddText("R-CLICK -     ZOOM", -0.95, 0.69, 0.035, { 0, 0, 0, 1 });
-		mp_2DText->AddText("SCROLL  - SWAP GUN", -0.95, 0.62, 0.035, { 0, 0, 0, 1 });
+		mp_2DText->AddText("WASD / ARROWS / R-STICK     -    MOVE", -0.95, 0.9, 0.035, { 0, 0, 0, 1 });
+		mp_2DText->AddText("SPACE / PAD-A               -    JUMP", -0.95, 0.83, 0.035, { 0, 0, 0, 1 });
+		mp_2DText->AddText("SHIFT / R-STICK PRESS       -    SPRINT", -0.95, 0.76, 0.035, { 0, 0, 0, 1 });
+		mp_2DText->AddText("L-CLICK / R-TRIGGER         -    SHOOT", -0.95, 0.69, 0.035, { 0, 0, 0, 1 });
+		mp_2DText->AddText("R-CLICK / L-TRIGGER         -    ZOOM", -0.95, 0.62, 0.035, { 0, 0, 0, 1 });
+		mp_2DText->AddText("SCROLL / QE / LR-BUMPERS    -    CHANGE GUN", -0.95, 0.55, 0.035, { 0, 0, 0, 1 });
 		break;
 	}
 	if (m_State != GameStates::PLAY)
